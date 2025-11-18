@@ -1,0 +1,10 @@
+build
+mx.scratch
+!.settings
+
+.vscode
+cmake
+Drivers
+.mxproject
+CMakePresets.json
+startup_stm32h723xx.s
