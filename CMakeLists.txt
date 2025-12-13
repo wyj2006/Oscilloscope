@@ -34,29 +34,22 @@ enable_language(C ASM)
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
 
-include_directories(CMSIS_6/CMSIS/Core/Include)
-include_directories(CMSIS-DSP/Include)
-
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
-add_subdirectory(CMSIS-DSP)
 
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    
+    # Add user defined library search paths
 )
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    Core/Src/tjc_usart_hmi.c
-    Core/Src/signal_generator.c
     Core/Src/scope.c
-    Core/Src/gui.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    
+    # Add user defined include paths
 )
 
 # Add project symbols (macros)
@@ -70,6 +63,6 @@ list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
-    CMSISDSP
+
     # Add user defined libraries
 )

@@ -19,9 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
-#include "dac.h"
 #include "dma.h"
-#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -29,12 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include <string.h>
-
-#include "gui.h"
 #include "scope.h"
-#include "signal_generator.h"
-#include "tjc_usart_hmi.h"
 
 /* USER CODE END Includes */
 
@@ -108,23 +101,14 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART2_UART_Init();
-  MX_DAC1_Init();
-  MX_TIM2_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
-  MX_TIM4_Init();
+  MX_USART2_UART_Init();
   MX_TIM3_Init();
-  MX_TIM8_Init();
-  MX_I2C1_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
-    initRingBuffer();
-    HAL_UART_Receive_IT(&TJC_UART, RxBuffer, 1);
-    tjc_send_string("rest");
-
-    Signal_Generator_Init();
-    Scope_Init();
+    scope_init();
 
   /* USER CODE END 2 */
 
@@ -132,17 +116,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-        Scope_Analyze();
-        char command[100];
-        for (int k = 0; k < 2; k++)
-        {
-            if (use_pregen_table[k] == 1)
-                sprintf(command, "signalgen.n%d.val=%d", k, TABLE_LEN);
-            else
-                sprintf(command, "signalgen.n%d.val=%d", k, table_len[k]);
-            tjc_send_string(command);
-        }
-
+        scope_update();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -177,7 +151,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 2;
-  RCC_OscInitStruct.PLL.PLLN = 22;
+  RCC_OscInitStruct.PLL.PLLN = 44;
   RCC_OscInitStruct.PLL.PLLP = 1;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
@@ -196,7 +170,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
@@ -206,6 +180,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /** Enables the Clock Security System
+  */
+  HAL_RCC_EnableCSS();
 }
 
 /**
@@ -220,8 +198,8 @@ void PeriphCommonClock_Config(void)
   */
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC;
   PeriphClkInitStruct.PLL2.PLL2M = 2;
-  PeriphClkInitStruct.PLL2.PLL2N = 64;
-  PeriphClkInitStruct.PLL2.PLL2P = 5;
+  PeriphClkInitStruct.PLL2.PLL2N = 16;
+  PeriphClkInitStruct.PLL2.PLL2P = 2;
   PeriphClkInitStruct.PLL2.PLL2Q = 2;
   PeriphClkInitStruct.PLL2.PLL2R = 2;
   PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
