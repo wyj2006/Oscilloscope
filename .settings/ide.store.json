@@ -1,6 +1,0 @@
-{
-  "device": "STM32H723ZGT6",
-  "toolchain": "CLANG_GCC",
-  "core": "Cortex-M7",
-  "order": 0
-}

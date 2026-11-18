@@ -1,11 +1,2 @@
-build
-mx.scratch
-!.settings
-
+/build
 .vscode
-cmake
-Drivers
-.mxproject
-CMakePresets.json
-startup_stm32h723xx.s
-__pycache__
