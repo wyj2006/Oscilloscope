@@ -1,2 +1,17 @@
 /build
 .vscode
+
+.rigel_lopper
+.rigel_lopper_temp_platform
+
+**/platform/export
+**/platform/hw/sdt
+**/platform/resources
+
+**/_ide/*
+!**/_ide/version.ini
+
+**/compile_commands.json
+**/.compile_commands
+
+**/app.yaml
