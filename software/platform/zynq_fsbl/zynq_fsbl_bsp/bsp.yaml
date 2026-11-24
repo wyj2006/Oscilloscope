@@ -60,10 +60,10 @@ os_config:
       permission: read_write
       type: string
       value: ps7_uart_0
-      default: ps7_uart_0
+      default: processing_system7_0
       options:
       - None
-      - ps7_uart_0
+      - processing_system7_0
       - ps7_coresight_comp_0
       description: stdin peripheral
     standalone_stdout:
@@ -71,10 +71,10 @@ os_config:
       permission: read_write
       type: string
       value: ps7_uart_0
-      default: ps7_uart_0
+      default: processing_system7_0
       options:
       - None
-      - ps7_uart_0
+      - processing_system7_0
       - ps7_coresight_comp_0
       description: stdout peripheral
     standalone_ttc_select_cntr:
@@ -152,6 +152,10 @@ include_folder: include
 lib_folder: lib
 libsrc_folder: libsrc
 drv_info:
+  processing_system7_0:
+    driver: uartps
+    ip_name: processing_system7
+    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\uartps_v3_17
   ps7_afi_0: None
   ps7_afi_1: None
   ps7_afi_2: None
@@ -190,10 +194,6 @@ drv_info:
     ip_name: ps7_scuwdt
     path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scuwdt_v2_6
   ps7_slcr_0: None
-  ps7_uart_0:
-    driver: uartps
-    ip_name: ps7_uart
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\uartps_v3_17
   ps7_xadc_0:
     driver: xadcps
     ip_name: ps7_xadc
