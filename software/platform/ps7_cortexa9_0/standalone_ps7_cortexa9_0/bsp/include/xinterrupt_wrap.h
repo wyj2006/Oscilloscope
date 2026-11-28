@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2021 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 /*****************************************************************************/
@@ -24,12 +24,14 @@
 * 9.2   ml   05/08/24 Add Support for connecting fast interrupt for intc.
 * 9.2   ml   09/20/24 Added conditional compilation checks to avoid unused
 * 		      declarations.
+* 9.5   ml   17/03/26 Added Device Tree trigger type macros
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 ******************************************************************************/
 
-#ifndef XINTERRUPT_WRAP_H		/**< prevent circular inclusions */
-#define XINTERRUPT_WRAP_H		/**< by using protection macros */
+#ifndef XINTERRUPT_WRAP_H
+#define XINTERRUPT_WRAP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +72,12 @@ enum XIntrType {
 #define XINTR_IS_PPI			1U
 #define XINTR_IS_SGI			2U
 
+/* Trigger type constants from TRM */
+#define XIL_TRIG_LOW_TO_HIGH_EDGE    1U  /* low-to-high edge triggered */
+#define XIL_TRIG_HIGH_TO_LOW_EDGE    2U  /* high-to-low edge triggered */
+#define XIL_TRIG_ACTIVE_HIGH_LEVEL   4U  /* active high level-sensitive */
+#define XIL_TRIG_ACTIVE_LOW_LEVEL    8U  /* active low level-sensitive */
+
 #define XINTC_TYPE_MASK		0x1
 #define XINTC_INTR_TYPE_MASK		0x100000
 #define XINTC_BASEADDR_MASK		0xFFFFFFFFFFFFFFFEU
@@ -93,16 +101,15 @@ enum XIntrType {
 * @brief    Get base address of parent interrupt controller in encoded format
 *           needed by interrupt wrapper layer
 *
-* @param    IntcBaseAddr Physical base address of parent interrupt controller.
-* @param    IntcType Parent interrupt controller type of targeted interrupt ID
+* @param[in]    IntParent Physical base address of parent interrupt controller.
+* @param[in]    IntcType Parent interrupt controller type of targeted interrupt ID
 *               1 = AXI INTC
 *               0 = GIC
 
 * @return   base address of parent interrupt controller in encoded format
 *           needed by interrupt wrapper layer.
 *
-* @note     None.
-*
+
 ******************************************************************************/
 
 #define XGetEncodedIntcBaseAddr(IntParent, IntcType)	(IntParent | IntcType)
@@ -135,4 +142,5 @@ extern s32 XTriggerSoftwareIntr(u32 IntrId, UINTPTR IntcParent, u32 Cpu_Id);
 }
 #endif
 
+/** @} */
 #endif  /* end of protection macro */

@@ -5,7 +5,7 @@ config: None
 os: standalone
 os_info:
   standalone:
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\bsp\standalone_v9_4
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\bsp\standalone_v9_6
 os_config:
   standalone:
     standalone_enable_sw_intrusive_profiling:
@@ -60,10 +60,10 @@ os_config:
       permission: read_write
       type: string
       value: ps7_uart_0
-      default: processing_system7_0
+      default: ps7_uart_0
       options:
       - None
-      - processing_system7_0
+      - ps7_uart_0
       - ps7_coresight_comp_0
       description: stdin peripheral
     standalone_stdout:
@@ -71,10 +71,10 @@ os_config:
       permission: read_write
       type: string
       value: ps7_uart_0
-      default: processing_system7_0
+      default: ps7_uart_0
       options:
       - None
-      - processing_system7_0
+      - ps7_uart_0
       - ps7_coresight_comp_0
       description: stdout peripheral
     standalone_ttc_select_cntr:
@@ -152,10 +152,6 @@ include_folder: include
 lib_folder: lib
 libsrc_folder: libsrc
 drv_info:
-  processing_system7_0:
-    driver: uartps
-    ip_name: processing_system7
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\uartps_v3_17
   ps7_afi_0: None
   ps7_afi_1: None
   ps7_afi_2: None
@@ -163,23 +159,23 @@ drv_info:
   ps7_coresight_comp_0:
     driver: coresightps_dcc
     ip_name: ps7_coresight_comp
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\coresightps_dcc_v1_13
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\coresightps_dcc_v1_14
   ps7_ddrc_0: None
   ps7_dev_cfg_0:
     driver: devcfg
     ip_name: ps7_dev_cfg
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\devcfg_v3_9
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\devcfg_v3_10
   ps7_dma_ns: None
   ps7_dma_s:
     driver: dmaps
     ip_name: ps7_dma
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\dmaps_v2_11
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\dmaps_v2_13
   ps7_globaltimer_0: None
   ps7_gpv_0: None
   ps7_intc_dist_0:
     driver: scugic
     ip_name: ps7_intc_dist
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scugic_v5_6
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scugic_v5_8
   ps7_iop_bus_config_0: None
   ps7_ocmc_0: None
   ps7_pl310_0: None
@@ -188,19 +184,23 @@ drv_info:
   ps7_scutimer_0:
     driver: scutimer
     ip_name: ps7_scutimer
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scutimer_v2_7
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scutimer_v2_9
   ps7_scuwdt_0:
     driver: scuwdt
     ip_name: ps7_scuwdt
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scuwdt_v2_6
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\scuwdt_v2_8
   ps7_slcr_0: None
+  ps7_uart_0:
+    driver: uartps
+    ip_name: ps7_uart
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\uartps_v3_19
   ps7_xadc_0:
     driver: xadcps
     ip_name: ps7_xadc
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\xadcps_v2_7
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\xadcps_v2_8
 lib_info:
   xiltimer:
-    path: D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_3
+    path: D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_5
     examples: {}
 lib_config:
   xiltimer:
@@ -234,3 +234,4 @@ lib_config:
       - None
       - ps7_scutimer_0
       description: This parameter is used to select specific timer for tick functionality
+bsp_build_dir: D:/Codes/Oscilloscope/software/platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/build

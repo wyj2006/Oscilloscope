@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright (c) 2022 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -29,7 +29,8 @@ extern "C" {
  * | PM_GET_API_VERSION		| 0x1   | Both		| 1	 | The API is used to request the version number of the API		     |
  * | PM_SET_CONFIGURATION	| 0x2	| ZynqMP	| 1	 | The API is used to configure the power management framework		     |
  * | ^				| ^	| ^		| ^	 | Note: Deprecated in Versal but supported in ZynqMP			     |
- * | PM_GET_NODE_STATUS		| 0x3	| Both		| 1	 | The API is used to obtain information about current status of a device    |
+ * | PM_GET_NODE_STATUS		| 0x3	| Both		| 2	 | V1 - The API is used to obtain information about current status of a device     |
+ * | ^				| ^	| ^		| ^	 | V2 - Added support to get proper state value for halt state               |
  * | PM_GET_OP_CHARACTERISTIC	| 0x4	| Both		| 2	 | V1 - The API is used to get operating characteristics of a device	     |
  * | ^				| ^	| ^		| ^	 | V2 - Added support of bitmask functionality, user can check the supported\n									"type" first before performing the actual functionality				       |
  * | PM_REGISTER_NOTIFIER	| 0x5	| Both		| 3	 | V1 - The API is used to register a subsystem to be notified about the\n									device event									       |
@@ -84,6 +85,7 @@ extern "C" {
  * | PM_CLOCK_GETSTATE		| 0x26	| Both		| 1	 | The API is used to read the clock state				     |
  * | PM_CLOCK_SETDIVIDER	| 0x27	| Both		| 1	 | The API is used to set the divider value of the clock		     |
  * | PM_CLOCK_GETDIVIDER	| 0x28	| Both		| 1	 | The API is used to read the clock divider				     |
+ * | PM_CLOCK_GETRATE		| 0x2A	| versal_2ve_2vm| 1	 | The API is used to read the clock rate				     |
  * | PM_CLOCK_SETPARENT		| 0x2B	| Both		| 1	 | The API is used to set the parent of the clock			     |
  * | PM_CLOCK_GETPARENT		| 0x2C	| Both		| 1	 | The API is used to read the clock parent				     |
  * | PM_PLL_SET_PARAM		| 0x30	| Both		| 1	 | The API is used to set the parameter of PLL clock			     |
@@ -96,6 +98,8 @@ extern "C" {
  * | ^				| ^	| ^		| ^	 | Note: Deprecated in Versal but supported in ZynqMP			     |
  * | PM_FEATURE_CHECK		| 0x3F	| Both		| 2	 | V1 - The API is used to return supported version of the given API	     |
  * | ^				| ^	| ^		| ^	 | V2 - Added support of bitmask payload functionality			     |
+ * | PM_GET_EVENT_STATUS_REGS	| 0x4F	| versal_2ve_2vm| 1	 | The API reads the raw register snapshot of the nodes linked to an	     |
+ * | ^				| ^	| ^		| ^	 | error/event {NodeId, Mask} for DDR EDAC source tracing		     |
  *
  *****************************************************************************/
 
@@ -132,8 +136,8 @@ extern "C" {
  * | IOCTL_REGISTER_SGI			| 25	| None		| Register SGI to ATF			|
  * | IOCTL_SET_FEATURE_CONFIG		| 26	| ZynqMP	| Set runtime feature config		|
  * | IOCTL_GET_FEATURE_CONFIG		| 27	| ZynqMP	| Get runtime feature config		|
- * | IOCTL_READ_REG			| 28	| Versal	| Read a 32-bit register		|
- * | IOCTL_MASK_WRITE_REG		| 29	| Versal	| RMW a 32-bit register			|
+ * | IOCTL_READ_REG			| 28	| Both		| Read a 32-bit register		|
+ * | IOCTL_MASK_WRITE_REG		| 29	| Both		| RMW a 32-bit register			|
  * | IOCTL_SET_SD_CONFIG		| 30	| ZynqMP	| Set SD config register value		|
  * | IOCTL_SET_GEM_CONFIG		| 31	| ZynqMP	| Set GEM config register value		|
  * | IOCTL_SET_USB_CONFIG		| 32	| ZynqMP	| Set USB config register value		|
@@ -144,6 +148,7 @@ extern "C" {
  * | IOCTL_PREPARE_DDR_SHUTDOWN		| 37	| Versal	| Prepare DDR for shut down		|
  * | IOCTL_GET_SSIT_TEMP		| 38	| Versal	| Get secondary SLR min/max temperature |
  * | IOCTL_AIE2PS_OPS			| 39 	| Versal_2ve_2vm	| AIE2PS Operations			|
+ * | IOCTL_SET_AIE_CLK_DIV		| 40	| Versal/Versal_2ve_2vm	| Set AIE clock divider			|
  *
  *****************************************************************************/
 
@@ -171,6 +176,9 @@ extern "C" {
  * | XPM_QID_CLOCK_GET_MAX_DIVISOR		| 13	| Both		| Get max clock divisor			|
  * | XPM_QID_PLD_GET_PARENT			| 14	| Versal	| Get PLD parent			|
  * | XPM_QID_PINCTRL_GET_ATTRIBUTES		| 15	| Versal	| Get pin attributes			|
+ * | XPM_QID_GET_NODE_NAME			| 16	| ZynqMP/versal_2ve_2vm	| Get node name				|
+ * | XPM_QID_GET_NODE_COUNT			| 17	| ZynqMP/versal_2ve_2vm	| Get node count			|
+ * | XPM_QID_GET_VID_POWER_STATE		| 18	| versal_2ve_2vm	| Rail mode VID picked, and the VID status |
  *
  *****************************************************************************/
 
@@ -236,8 +244,7 @@ typedef enum {
 	PM_CLOCK_SETDIVIDER,				/**< 0x27 */
 	PM_CLOCK_GETDIVIDER,				/**< 0x28 */
 	PM_CLOCK_SETRATE,				/**< 0x29 */
-	/* PM_CLOCK_GETRATE API is deprecated */
-	PM_RESERVE_ID,					/**< 0x2A */
+	PM_CLOCK_GETRATE,				/**< 0x2A */
 	PM_CLOCK_SETPARENT,				/**< 0x2B */
 	PM_CLOCK_GETPARENT,				/**< 0x2C */
 	PM_SECURE_IMAGE,				/**< 0x2D */
@@ -270,7 +277,12 @@ typedef enum {
 	PM_FPGA_GET_VERSION,				/**< 0x48 */
 	PM_FPGA_GET_FEATURE_LIST,			/**< 0x49 */
 	PM_HNICX_NPI_DATA_XFER,				/**< 0x4A */
-	PM_API_MAX					/**< 0x4B */
+	PM_FPGA_SET_CONFIG_REG,				/**< 0x4B */
+	PM_FPGA_GET_FRAME_DATA,				/**< 0x4C */
+	PM_CLOCK_DESCRIBERATE,				/**< 0x4D */
+	PM_CLOCK_PROGRAM_RATE,				/**< 0x4E */
+	PM_GET_EVENT_STATUS_REGS,			/**< 0x4F */
+	PM_API_MAX					/**< 0x50 */
 } XPm_ApiId;
 
 #ifdef __cplusplus

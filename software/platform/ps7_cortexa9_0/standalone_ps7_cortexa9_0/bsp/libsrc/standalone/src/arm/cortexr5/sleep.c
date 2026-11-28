@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2014 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2024 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -31,7 +31,7 @@
 *                         instance specified by user.
 * 7.2   mus      01/29/20 Updated sleep routines to use CortexR5 PMU for delay
 *                         generation, in case TTC3/TTC2 instances are not
-*                         present in HW design. If user dont want to use PMU
+*                         present in HW design. If user don't want to use PMU
 *                         counter for sleep routines, BSP needs to be compiled
 *                         with "DONT_USE_PMU_FOR_SLEEP_ROUTINES" flag. It fixes
 *                         CR#1051591.
@@ -59,7 +59,7 @@
 *
 * This API is used to provide delays in seconds.
 *
-* @param	seconds requested
+* @param[in]	seconds requested
 *
 * @note		By default, sleep is implemented using TTC3. Although user is
 *               given an option to select other instances of TTC. When the user
@@ -68,7 +68,7 @@
 *	        of TTC specifically and when TTC3 is absent, sleep is implemented
 *      	        using assembly instructions which is tested with instruction and
 *		data caches enabled and it gives proper delay. It may give more
-*		delay than exepcted when caches are disabled. If interrupt comes
+*		delay than expected when caches are disabled. If interrupt comes
 *		when sleep using assembly instruction is being executed, the delay
 *		may be greater than what is expected since once the interrupt is
 *		served count resumes from where it was interrupted unlike the case

@@ -1,6 +1,5 @@
 ip_user_files
 edit*
 
-
 managed_ip_project/*
 !managed_ip_project/*.xpr

@@ -1,17 +1,21 @@
 /******************************************************************************
 * Copyright (C) 2009 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2023 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
+
+#ifndef XDMAPS_H		/* prevent circular inclusions */
+/** @brief Include guard for the DMAPS driver header. */
+#define XDMAPS_H		/* by using protection macros */
 
 /****************************************************************************/
 /**
 *
 * @file xdmaps.h
+* @brief Driver API for the DMA PS (PL330) engine.
+*
 * @addtogroup dmaps Overview
 * @{
-* @details
-*
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -66,9 +70,6 @@
 *
 *****************************************************************************/
 
-#ifndef XDMAPS_H		/* prevent circular inclusions */
-#define XDMAPS_H		/* by using protection macros */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,27 +88,26 @@ extern "C" {
 /**************************** Type Definitions ******************************/
 
 /**
- * This typedef contains configuration information for the device.
+ * Holds configuration information for the device.
  */
 typedef struct {
 #ifndef SDT
 	u16 DeviceId;	 /**< Unique ID  of device */
 #else
-	char *Name;
+	char *Name;	 /**< Unique name of the device */
 #endif
 	u32 BaseAddress; /**< Base address of device (IPIF) */
 
 #ifdef SDT
-	u32 IntrId[9];		/** Bits[11:0] Interrupt-id Bits[15:12]
+	u32 IntrId[9];		/**< Bits[11:0] Interrupt-id Bits[15:12]
 				* trigger type and level flags */
-	UINTPTR IntrParent;	/** Bit[0] Interrupt parent type Bit[64/32:1]
+	UINTPTR IntrParent;	/**< Bit[0] Interrupt parent type Bit[64/32:1]
 				 * Parent base address */
 #endif
 } XDmaPs_Config;
 
 
-/** DMA channle control structure. It's for AXI bus transaction.
- * This struct will be translated into a 32-bit channel control register value.
+/** Holds AXI channel control settings translated into a 32-bit CCR value.
  */
 typedef struct {
 	unsigned int EndianSwapSize;	/**< Endian swap size. */
@@ -125,7 +125,7 @@ typedef struct {
 					 *   address */
 } XDmaPs_ChanCtrl;
 
-/** DMA block descriptor stucture.
+/** DMA block descriptor structure.
  */
 typedef struct {
 	u32 SrcAddr;		/**< Source starting address */
@@ -153,7 +153,7 @@ typedef struct {
 					  *  DMA program.
 					  */
 
-	void *GeneratedDmaProg;		/**< The DMA program genreated
+	void *GeneratedDmaProg;		/**< The DMA program generated
 					 * by the driver. This field will be
 					 * set if a user invokes the DMA
 					 * program generation function. Or
@@ -179,21 +179,21 @@ typedef struct {
 } XDmaPs_Cmd;
 
 /**
- * It's the done handler a user can set for a channel
+ * Done handler callback type for a channel
  */
 typedef void (*XDmaPsDoneHandler) (unsigned int Channel,
 				   XDmaPs_Cmd *DmaCmd,
 				   void *CallbackRef);
 
 /**
- * It's the fault handler a user can set for a channel
+ * Fault handler callback type for a channel
  */
 typedef void (*XDmaPsFaultHandler) (unsigned int Channel,
 				    XDmaPs_Cmd *DmaCmd,
 				    void *CallbackRef);
 
-#define XDMAPS_MAX_CHAN_BUFS	2
-#define XDMAPS_CHAN_BUF_LEN	128
+#define XDMAPS_MAX_CHAN_BUFS	2 /**< Maximum number of channel buffers. */
+#define XDMAPS_CHAN_BUF_LEN	128 /**< Length of each channel buffer in bytes. */
 
 /**
  * The XDmaPs_ProgBuf is the struct for a DMA program buffer.
@@ -285,6 +285,7 @@ int XDmaPs_Instr_DMAWMB(char *DmaProg);
  * To avoid linkage error,modify all inline functions from extern
  * inline to static inline for IAR compiler
  */
+/** @cond INTERNAL */
 #ifdef __ICCARM__
 static INLINE int XDmaPs_Instr_DMAEND(char *DmaProg);
 static INLINE void XDmaPs_Memcpy4(char *Dst, char *Src);
@@ -301,6 +302,7 @@ static INLINE int XDmaPs_Instr_DMAST(char *DmaProg);
 static INLINE unsigned XDmaPs_ToEndianSwapSizeBits(unsigned int EndianSwapSize);
 static INLINE unsigned XDmaPs_ToBurstSizeBits(unsigned BurstSize);
 #endif
+/** @endcond */
 
 /**
  * Driver done interrupt service routines for the channels.
@@ -323,12 +325,42 @@ void XDmaPs_FaultISR(XDmaPs *InstPtr);
 
 
 /*
- * Static loopup function implemented in xdmaps_sinit.c
+ * Static lookup function implemented in xdmaps_sinit.c
  */
 #ifndef SDT
+/*****************************************************************************/
+/**
+ * @brief Looks up device configuration by device ID.
+ *
+ * @param[in] DeviceId contains the unique ID of the device.
+ *
+ * @return A pointer to the configuration table entry corresponding to the given
+ *         device ID, or NULL if no match is found.
+ *
+ *****************************************************************************/
 XDmaPs_Config *XDmaPs_LookupConfig(u16 DeviceId);
 #else
+/*****************************************************************************/
+/**
+ * @brief Looks up device configuration by base address.
+ *
+ * @param[in] BaseAddress contains the base address of the device.
+ *
+ * @return A pointer to the configuration table entry corresponding to the given
+ *         base address, or NULL if no match is found.
+ *
+ *****************************************************************************/
 XDmaPs_Config *XDmaPs_LookupConfig(UINTPTR BaseAddress);
+/*****************************************************************************/
+/**
+ * @brief Returns the driver configuration table index for the given base address.
+ *
+ * @param[in] InstancePtr is a pointer to the XDmaPs instance.
+ * @param[in] BaseAddress is the base address of the device.
+ *
+ * @return The configuration table index for the matching device.
+ *
+ *****************************************************************************/
 u32 XDmaPs_GetDrvIndex(XDmaPs *InstancePtr, UINTPTR BaseAddress);
 #endif
 
@@ -336,6 +368,17 @@ u32 XDmaPs_GetDrvIndex(XDmaPs *InstancePtr, UINTPTR BaseAddress);
 /*
  * self-test functions in xdmaps_selftest.c
  */
+/*****************************************************************************/
+/**
+ * @brief Runs a self-test on the driver and hardware device.
+ *
+ * @param[in] InstPtr is a pointer to the XDmaPs instance.
+ *
+ * @return
+ *		- XST_SUCCESS if the test was successful.
+ *		- XST_FAILURE if the test failed.
+ *
+ *****************************************************************************/
 int XDmaPs_SelfTest(XDmaPs *InstPtr);
 
 

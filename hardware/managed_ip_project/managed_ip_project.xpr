@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Product Version: Vivado v2025.2 (64-bit)                              -->
+<!-- Product Version: Vivado v2026.2 (64-bit)                              -->
 <!--                                                                         -->
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
-<!-- Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.   -->
+<!-- Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="71" Path="D:/Codes/Oscilloscope/hardware/managed_ip_project/managed_ip_project.xpr">
+<Project Product="Vivado" Version="7" Minor="73" Path="D:/Codes/Oscilloscope/hardware/managed_ip_project/managed_ip_project.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="b881a2601cff4d93ba46dfccab326237"/>
@@ -29,20 +29,20 @@
     <Option Name="SimulatorGccInstallDirVCS" Val=""/>
     <Option Name="SimulatorGccInstallDirRiviera" Val=""/>
     <Option Name="SimulatorGccInstallDirActiveHdl" Val=""/>
-    <Option Name="SimulatorVersionXsim" Val="2025.2"/>
-    <Option Name="SimulatorVersionModelSim" Val="2025.2"/>
-    <Option Name="SimulatorVersionQuesta" Val="2025.2"/>
+    <Option Name="SimulatorVersionXsim" Val="2026.2"/>
+    <Option Name="SimulatorVersionModelSim" Val="2026.2"/>
+    <Option Name="SimulatorVersionQuesta" Val="2026.2"/>
     <Option Name="SimulatorVersionXcelium" Val="25.03.002"/>
     <Option Name="SimulatorVersionVCS" Val="X-2025.06"/>
-    <Option Name="SimulatorVersionRiviera" Val="2024.10"/>
-    <Option Name="SimulatorVersionActiveHdl" Val="15.0"/>
-    <Option Name="SimulatorGccVersionXsim" Val="9.3.0"/>
-    <Option Name="SimulatorGccVersionModelSim" Val="7.4.0"/>
-    <Option Name="SimulatorGccVersionQuesta" Val="7.4.0"/>
+    <Option Name="SimulatorVersionRiviera" Val="2026.04"/>
+    <Option Name="SimulatorVersionActiveHdl" Val="17.0"/>
+    <Option Name="SimulatorGccVersionXsim" Val="12.2.0"/>
+    <Option Name="SimulatorGccVersionModelSim" Val="13.4.0"/>
+    <Option Name="SimulatorGccVersionQuesta" Val="13.4.0"/>
     <Option Name="SimulatorGccVersionXcelium" Val="9.3.0"/>
     <Option Name="SimulatorGccVersionVCS" Val="9.2.0"/>
-    <Option Name="SimulatorGccVersionRiviera" Val="9.3.0"/>
-    <Option Name="SimulatorGccVersionActiveHdl" Val="9.3.0"/>
+    <Option Name="SimulatorGccVersionRiviera" Val="14.2.0"/>
+    <Option Name="SimulatorGccVersionActiveHdl" Val="14.2.0"/>
     <Option Name="BoardPart" Val=""/>
     <Option Name="SourceMgmtMode" Val="None"/>
     <Option Name="ActiveSimSet" Val="sim_1"/>
@@ -50,30 +50,17 @@
     <Option Name="ProjectType" Val="Managed_IP"/>
     <Option Name="IPRepoPath" Val="$PPRDIR/../src/display_controller_1_0"/>
     <Option Name="IPOutputRepo" Val="$PCACHEDIR/ip"/>
-    <Option Name="IPDefaultOutputPath" Val="$PSRCDIR/sources_1"/>
+    <Option Name="IPDefaultOutputPath" Val="$PGENDIR/sources_1"/>
     <Option Name="IPCachePermission" Val="read"/>
     <Option Name="IPCachePermission" Val="write"/>
     <Option Name="EnableCoreContainer" Val="FALSE"/>
     <Option Name="EnableResourceEstimation" Val="FALSE"/>
+    <Option Name="LogicalNocTop" Val="TRUE"/>
     <Option Name="SimCompileState" Val="TRUE"/>
     <Option Name="CreateRefXciForCoreContainers" Val="FALSE"/>
     <Option Name="IPUserFilesDir" Val="$PPRDIR/../ip_user_files"/>
     <Option Name="IPStaticSourceDir" Val="$PPRDIR/../ip_user_files/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
-    <Option Name="WTXSimLaunchSim" Val="0"/>
-    <Option Name="WTModelSimLaunchSim" Val="0"/>
-    <Option Name="WTQuestaLaunchSim" Val="0"/>
-    <Option Name="WTIesLaunchSim" Val="0"/>
-    <Option Name="WTVcsLaunchSim" Val="0"/>
-    <Option Name="WTRivieraLaunchSim" Val="0"/>
-    <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="0"/>
-    <Option Name="WTModelSimExportSim" Val="0"/>
-    <Option Name="WTQuestaExportSim" Val="0"/>
-    <Option Name="WTIesExportSim" Val="0"/>
-    <Option Name="WTVcsExportSim" Val="0"/>
-    <Option Name="WTRivieraExportSim" Val="0"/>
-    <Option Name="WTActivehdlExportSim" Val="0"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -89,20 +76,20 @@
     <Option Name="LocalIPRepoLeafDirName" Val="ip_repo"/>
   </Configuration>
   <FileSets Version="1" Minor="32">
-    <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
+    <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
       <Filter Type="Srcs"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
       </Config>
     </FileSet>
-    <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
+    <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1" RelGenDir="$PGENDIR/constrs_1">
       <Filter Type="Constrs"/>
       <Config>
         <Option Name="ConstrsType" Val="XDC"/>
       </Config>
     </FileSet>
-    <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1">
+    <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1" RelGenDir="$PGENDIR/sim_1">
       <Filter Type="Srcs"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
@@ -124,12 +111,13 @@
         <Option Name="CosimOutDir" Val=""/>
         <Option Name="CosimXsa" Val=""/>
         <Option Name="CosimAIKernel" Val=""/>
+        <Option Name="CosimBootConfig" Val=""/>
         <Option Name="LogicalNoCTop" Val=""/>
         <Option Name="LogicalNoCTopLib" Val=""/>
         <Option Name="Dmv" Val=""/>
       </Config>
     </FileSet>
-    <FileSet Name="utils_1" Type="Utils" RelSrcDir="$PSRCDIR/utils_1">
+    <FileSet Name="utils_1" Type="Utils" RelSrcDir="$PSRCDIR/utils_1" RelGenDir="$PGENDIR/utils_1">
       <Filter Type="Utils"/>
       <Config>
         <Option Name="TopAutoSet" Val="TRUE"/>
@@ -237,6 +225,36 @@
     <MsgAttr Name="Note" Val=""/>
     <MsgAttr Name="Author" Val=""/>
     <MsgAttr Name="CreatedTimestamp" Val=""/>
+  </MsgRule>
+  <MsgRule>
+    <MsgAttr Name="RuleType" Val="0"/>
+    <MsgAttr Name="Limit" Val="-1"/>
+    <MsgAttr Name="NewSeverity" Val="ANY"/>
+    <MsgAttr Name="Id" Val="USF-XSim-62"/>
+    <MsgAttr Name="Severity" Val="ANY"/>
+    <MsgAttr Name="ShowRule" Val="1"/>
+    <MsgAttr Name="RuleSource" Val="8"/>
+    <MsgAttr Name="StringIsRegExp" Val="0"/>
+    <MsgAttr Name="RuleId" Val="5"/>
+    <MsgAttr Name="Note" Val=""/>
+    <MsgAttr Name="Author" Val=""/>
+    <MsgAttr Name="CreatedTimestamp" Val=""/>
+    <MsgAttr Name="StringsToMatch" Val="ERROR: [USF-XSim-62] &apos;compile&apos; step failed with error(s). Please check the Tcl console output or &apos;D:/Codes/Oscilloscope/hardware/managed_ip_project/managed_ip_project.tmp/display_controller_v1_0_project/display_controller_v1_0_project.sim/sim_1/behav/xsim/xvlog.log&apos; file for more information."/>
+  </MsgRule>
+  <MsgRule>
+    <MsgAttr Name="RuleType" Val="0"/>
+    <MsgAttr Name="Limit" Val="-1"/>
+    <MsgAttr Name="NewSeverity" Val="ANY"/>
+    <MsgAttr Name="Id" Val="IP_Flow 19-11770"/>
+    <MsgAttr Name="Severity" Val="ANY"/>
+    <MsgAttr Name="ShowRule" Val="1"/>
+    <MsgAttr Name="RuleSource" Val="8"/>
+    <MsgAttr Name="StringIsRegExp" Val="0"/>
+    <MsgAttr Name="RuleId" Val="6"/>
+    <MsgAttr Name="Note" Val=""/>
+    <MsgAttr Name="Author" Val=""/>
+    <MsgAttr Name="CreatedTimestamp" Val=""/>
+    <MsgAttr Name="StringsToMatch" Val="WARNING: [IP_Flow 19-11770] Clock interface &apos;M_AXI_CLK&apos; has no FREQ_HZ parameter."/>
   </MsgRule>
   <Board/>
   <DashboardSummary Version="1" Minor="0">

@@ -1,49 +1,304 @@
 /******************************************************************************
-* Copyright (c) 2023 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
+
+/**
+ * @file bspconfig.h
+ * @brief BSP configuration macros.
+ *
+ * This file is generated from bspconfig.h.in by CMake.
+ */
+
 #ifndef BSPCONFIG_H
 #define BSPCONFIG_H
 
 #include "xmem_config.h"
+
+/**
+* @brief Enables the Xilinx timer support.
+*
+* Always defined for standalone BSPs.
+*/
 #define XPAR_XILTIMER_ENABLED
+
+/**
+* @brief Includes the processor-system parameter definitions when required.
+*
+* The XPAR_PS_INCLUDE placeholder expands to an include directive for
+* xparameters_ps.h for supported processor systems and remains empty otherwise.
+*/
 #include "xparameters_ps.h"
+/* End of xparameters_ps.h include. */
 
 
-/* FIXME: Remove dependency with YOCTO_FLOW variable */
-#if (defined (__aarch64__) || defined (ARMA53_32)) && (defined (YOCTO_FLOW) || !defined (FREERTOS_BSP))
-#define EL3  0
-#define EL1_NONSECURE  0
-#define HYP_GUEST  0
+/**
+* @brief Includes the FreeRTOS UART configuration header when required.
+*
+* The FREERTOS_UARTCONFIG_INCLUDE placeholder expands to an include
+* directive for FreeRTOSUARTConfig.h. This include is generated only for
+* FreeRTOS-targeted BSPs and remains empty otherwise.
+*/
+
+/* End of FreeRTOSUARTConfig.h include. */
+
+#if (defined (__aarch64__) || defined (ARMA53_32)) && !defined (FREERTOS_BSP)
+/**
+* @brief Indicates that the BSP is configured to run in EL3.
+*
+* The generated value is 1 when this mode is enabled.
+*/
+#define EL3 0
+
+/**
+* @brief Indicates that the BSP is configured to run in EL1 non-secure mode.
+*
+* The generated value is 1 when this mode is enabled.
+*/
+#define EL1_NONSECURE 0
+
+/**
+* @brief Indicates that the BSP is configured to run as a hypervisor guest.
+*
+* The generated value is 1 when this mode is enabled.
+*/
+#define HYP_GUEST 0
 #endif
 
+/**
+* @brief Defines the Versal platform family.
+*
+* Defined for all platforms from the Versal family onwards, covers Versal
+* ACAP devices, Versal 2VP devices and their variants, Versal-Net devices,
+* and Versal 2VE and 2VM devices.
+*/
 /* #undef versal */
+
+/**
+* @brief Defines the Versal platform family.
+*
+* This redundant definition is retained for backward compatibility because
+* some sources already use the uppercase VERSAL macro. It follows the all-caps
+* syntax used by the other platform definitions for consistency.
+*/
 /* #undef VERSAL */
+
+/**
+* @brief Defines platform families containing Cortex-A78 and Cortex-R52
+* processing cores.
+*
+* This macro is defined for Versal Net and Versal 2VE and 2VM devices and
+* helps distinguishing these devices from Versal ACAP devices.
+*/
 /* #undef VERSAL_NET */
-/* #undef VERSAL_AIEPG2 */
+
+/**
+* @brief Defines the Versal 2VE and 2VM platform family.
+*
+* Defined for Versal 2VE and 2VM devices.
+* Helps distinguish Versal 2VE and 2VM devices from Versal Net devices.
+*/
 /* #undef VERSAL_2VE_2VM */
+
+/**
+* @brief Defines the Versal 2VE and 2VM platform family.
+*
+* Defined for Versal 2VE and 2VM devices. This macro is redundant and
+* deprecated, and is retained here only for backward compatibility.
+*/
+/* #undef VERSAL_AIEPG2 */
+
+/**
+* @brief Defines the SpartanUP platform family.
+*
+* Defined when the BSP targets the spartanuplus machine.
+*/
 /* #undef SPARTANUP */
-/* #undef PSU_PMU */
+
+/**
+* @brief Defines the Zynq UltraScale+ MPSoC platform family.
+*
+* Defined when the BSP targets a ZynqMP machine.
+*/
 /* #undef PLATFORM_ZYNQMP */
-/* #undef XCLOCKING */
+
+/**
+* @brief Defines the Zynq-7000 platform family.
+*
+* Defined when the BSP targets a Zynq machine.
+*/
 #define PLATFORM_ZYNQ  
-/* #undef VERSAL_PLM */
-/* #undef VERSALNET_PLM */
+
+/**
+* @brief Indicates whether the Cortex-A9 BSP is built with the hard-float ABI.
+*
+* Defined for Cortex-A9 standalone BSPs when the effective -mfloat-abi option
+* derived from proc_compiler_flags and proc_extra_compiler_flags is hard.
+* The generated value is 1 for hard-float builds and 0 for soft-float or
+* softfp configurations. When set to 1, asm_vectors.S saves and restores
+* VFP register context in IRQ and FIQ handlers.
+*/
+#define FPU_HARD_FLOAT_ABI_ENABLED 1
+
+/**
+* @brief Defines the MicroBlaze platform family.
+*
+* Defined for the MicroBlaze processor.
+*/
 /* #undef PLATFORM_MB */
+
+/**
+* @brief Indicates that the BSP targets the ZynqMP platform management unit.
+*
+* Defined for the PMU MicroBlaze processor.
+*/
+/* #undef PSU_PMU */
+
+/**
+* @brief Indicates that the BSP targets the Versal platform loader and manager.
+*
+* Defined for the PLM MicroBlaze processor.
+*/
+/* #undef VERSAL_PLM */
+
+/**
+* @brief Indicates that the BSP targets the Versal Net platform loader and manager.
+*
+* Defined for the PLM MicroBlaze processor on a Versal Net machine.
+*/
+/* #undef VERSALNET_PLM */
+
+/**
+* @brief Indicates that the ASUFW application template is selected for the
+* BSP.
+*
+* Defined when the ASUFW application template is selected.
+*/
 /* #undef ASUFW */
+
+/**
+* @brief Enables clocking support.
+*
+* Defined when clocking is enabled for a supported ZynqMP processor.
+*/
+/* #undef XCLOCKING */
+
+/**
+* @brief Identifies the processor core associated with the BSP.
+*/
 #define XPAR_CPU_ID 0
+
+/**
+* @brief Indicates that Xilinx interrupt support is enabled.
+*
+* Defined when link-time optimization and Versal PSM MicroBlaze builds are
+* not being used.
+*/
 #define XIL_INTERRUPT  
+
+/**
+* @brief Indicates that Xilinx power management support is enabled.
+*
+* Defined when XPM support is enabled for Versal and Versal onwards devices.
+*/
 /* #undef XPM_SUPPORT */
+/* #undef RISCV_MODE_SWITCH */
+/* #undef RISCV_USER_APP */
+
+/**
+* @brief Enables a translation table limited to the initial 4 TB address space.
+*
+* Defined by default for Cortex-A78 BSPs. This reduces the translation table
+* size by approximately 1 MB and must be disabled when peripherals or
+* memory-mapped regions beyond 4 TB are required.
+*/
+/* #undef ENABLE_MINIMAL_XLAT_TBL */
+
+/**
+* @brief Enables splitting the 2 MB memory block from 0xFFE00000 to
+* 0xFFFFFFFF into 4 KB pages.
+*
+* Defined only for Cortex-A53 BSPs targeting a ZynqMP machine and disabled by
+* default. When enabled, the linker script must reference the MMU entries
+* through a .mmu_tbl3 section.
+*/
 /* #undef ENABLE_4K_PAGES_OCM_TCM */
+
+/**
+* @brief Indicates that standard input is connected to a UART Lite device.
+*
+* Defined when the selected standard input device is a UART Lite instance.
+*/
 /* #undef XPAR_STDIN_IS_UARTLITE */
+
+/**
+* @brief Indicates that standard input is connected to a UART 16550 device.
+*
+* Defined when the selected standard input device is a UART 16550 instance.
+*/
 /* #undef XPAR_STDIN_IS_UARTNS550 */
-/* #undef XPAR_STDIN_IS_UARTPS */
+
+/**
+* @brief Indicates that standard input is connected to a UART PS device.
+*
+* Defined when the selected standard input device is a UART PS instance.
+*/
+#define XPAR_STDIN_IS_UARTPS  
+
+/**
+* @brief Indicates that standard input is connected to a UART PS device.
+*
+* Defined when the selected standard input device is a Versal UART PS
+* instance.
+*/
 /* #undef XPAR_STDIN_IS_UARTPSV */
+
+/**
+* @brief Indicates that standard input is connected to the CoreSight PS DCC.
+*
+* Defined when the selected standard input device is a CoreSight PS DCC
+* instance.
+*/
 /* #undef XPAR_STDIN_IS_CORESIGHTPS_DCC */
+
+/**
+* @brief Indicates that standard input is connected to an I/O module.
+*
+* Defined when the selected standard input device is an I/O module instance.
+*/
 /* #undef XPAR_STDIN_IS_IOMODULE */
-/* #undef STDIN_BASEADDRESS */
-/* #undef STDOUT_BASEADDRESS */
 
+/**
+* @brief Defines the base address used for standard input.
+*
+* Defined when a standard input device is selected.
+*/
+#define STDIN_BASEADDRESS 0xe0000000
 
+/**
+* @brief Defines the base address used for standard output.
+*
+* Defined when a standard output device is selected.
+*/
+#define STDOUT_BASEADDRESS 0xe0000000
+
+/**
+* @brief Defines one or more macros for hardware platform variants.
+*
+* The following generated block may contain multiple definitions. Each macro
+* is generated from the variant property in the system device tree and
+* identifies a variant-specific hardware configuration.
+* For example,
+*   - SPARTANUPLUSAES1 is defined for a variant of the SPARTANUP family.
+*   - SPARTANUPLUS is defined as a redundant macro for the SPARTANUP family
+*     using the same variant property from the device tree for backward
+*     compatibility.
+*   - VERSAL_2VP is defined for the Versal 2VP family to help distinguish 2VP
+*     variants from Versal ACAP devices.
+*   - VERSAL_2VP_P is defined for a variant of the Versal 2VP family to help
+*     distinguish 2VP_P variants from 2VP variants.
+*/
+
+/* End of variant-specific definitions. */
 
 #endif /* BSPCONFIG_H */

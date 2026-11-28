@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2021 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -23,7 +23,10 @@
 *       kj       12/01/2023 Add HBM CATTRIP Sw Error Mask
 *       tvp      07/07/2025 Add SW PCR Error Mask
 * 8.0   sk       09/23/2025 Added Additional HBMON Error ID's
+*       sd       08/20/2026 Added PMC WWDT error event mask
+*       dc       09/01/2026 Added XIL_EVENT_ERROR_MASK_DEV_STATE_CHANGE
 *
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 * @note
@@ -37,29 +40,26 @@ extern "C" {
 #endif
 
 /************************** Constant Definitions *****************************/
-/**@name Versal Event Node IDs
+/**
  * @defgroup xileventnodes Event Node IDs
- * @ingroup xilnodeids
  * @{
  */
 
-#define XIL_NODETYPE_EVENT_ERROR_ID_ENCODING	(0x28100000U)
-
+#define XIL_NODETYPE_EVENT_ERROR_ID_ENCODING	(0x28100000U) /**< Error event ID encoding for node type. */
  /**
  * Error Event Node Ids
  */
 #define XIL_NODETYPE_EVENT_ERROR_PMC_ERR1	(0x28100000U)
-#define XIL_NODETYPE_EVENT_ERROR_PMC_ERR2	(0x28104000U)
-#define XIL_NODETYPE_EVENT_ERROR_PSM_ERR1	(0x28108000U)
-#define XIL_NODETYPE_EVENT_ERROR_PSM_ERR2	(0x2810C000U)
-#define XIL_NODETYPE_EVENT_ERROR_SW_ERR		(0x28110000U)
+#define XIL_NODETYPE_EVENT_ERROR_PMC_ERR2	(0x28104000U) /**< PMC ERR2 error event node ID. */
+#define XIL_NODETYPE_EVENT_ERROR_PSM_ERR1	(0x28108000U) /**< PSM ERR1 error event node ID. */
+#define XIL_NODETYPE_EVENT_ERROR_PSM_ERR2	(0x2810C000U) /**< PSM ERR2 error event node ID. */
+#define XIL_NODETYPE_EVENT_ERROR_SW_ERR		(0x28110000U) /**< SW error event node ID. */
 /**
  * @}
  */
 
-/**@name Versal Error event Mask
+/**
  * @defgroup xilerroreventmask Error Event Mask
- * @ingroup xilnodeids
  * @{
  * @defgroup pmcerr1 Error Event Mask for PMC ERR1
  * @ingroup xilerroreventmask
@@ -185,7 +185,7 @@ extern "C" {
  */
 /** Error event mask for General purpose PMC error,
  * can be triggered by any of the following peripherals:,
- * - PMC Global Regsiters,- PMC Clock & Reset (CRP),- PMC IOU Secure SLCR,
+ * - PMC Global Registers,- PMC Clock & Reset (CRP),- PMC IOU Secure SLCR,
  * - PMC IOU SLCR,- BBRAM Controller,- PMC Analog Control Registers,
  * - RTC Control Registers. */
 #define XIL_EVENT_ERROR_MASK_PMCAPB		(0x00000001U)
@@ -255,6 +255,9 @@ extern "C" {
 
 /** Error event mask for CFRAME SEU ECC Error. */
 #define XIL_EVENT_ERROR_MASK_SEUECC		(0x00080000U)
+
+/** Error event mask for PMC WWDT Error. */
+#define XIL_EVENT_ERROR_MASK_PMX_WWDT		(0x00100000U)
 
 /** Error event mask for RTC Alarm Error. */
 #define XIL_EVENT_ERROR_MASK_RTCALARM		(0x00400000U)
@@ -470,23 +473,25 @@ extern "C" {
 /** Error event mask for Software error events */
 /** Health Boot Monitoring errors */
 #define XIL_EVENT_ERROR_MASK_HB_MON_0		(0x00000001U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_1		(0x00000002U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_2		(0x00000004U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_3		(0x00000008U)
-#define XIL_EVENT_ERROR_MASK_PLM_EXCEPTION	(0x00000010U)
-#define XIL_EVENT_ERROR_PCR_LOG_UPDATE		(0x00000400U)
+#define XIL_EVENT_ERROR_MASK_HB_MON_1		(0x00000002U) /**< Health Boot Monitor 1 error event mask. */
+#define XIL_EVENT_ERROR_MASK_HB_MON_2		(0x00000004U) /**< Health Boot Monitor 2 error event mask. */
+#define XIL_EVENT_ERROR_MASK_HB_MON_3		(0x00000008U) /**< Health Boot Monitor 3 error event mask. */
+#define XIL_EVENT_ERROR_MASK_PLM_EXCEPTION	(0x00000010U) /**< PLM exception error event mask. */
+#define XIL_EVENT_ERROR_PCR_LOG_UPDATE		(0x00000400U) /**< PCR log update error event mask. */
 /** XilSem errors */
 #define XIL_EVENT_ERROR_MASK_XSEM_CRAM_CE	(0x00000020U)
-#define XIL_EVENT_ERROR_MASK_XSEM_CRAM_UE	(0x00000040U)
-#define XIL_EVENT_ERROR_MASK_XSEM_NPI_UE	(0x00000080U)
+#define XIL_EVENT_ERROR_MASK_XSEM_CRAM_UE	(0x00000040U) /**< XilSem CRAM uncorrectable error event mask. */
+#define XIL_EVENT_ERROR_MASK_XSEM_NPI_UE	(0x00000080U) /**< XilSem NPI uncorrectable error event mask. */
 /** STL errors */
 #define XIL_EVENT_ERROR_MASK_XSTL_UE		(0x00000100U)
 /** HBM CATTRIP Software Error */
 #define XIL_EVENT_ERROR_MASK_HBM_CATTRIP	(0x00000200U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_4		(0x00000400U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_5		(0x00000800U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_6		(0x00001000U)
-#define XIL_EVENT_ERROR_MASK_HB_MON_7		(0x00002000U)
+#define XIL_EVENT_ERROR_MASK_HB_MON_4		(0x00000400U) /**< Health Boot Monitor 4 error event mask. */
+#define XIL_EVENT_ERROR_MASK_HB_MON_5		(0x00000800U) /**< Health Boot Monitor 5 error event mask. */
+#define XIL_EVENT_ERROR_MASK_HB_MON_6		(0x00001000U) /**< Health Boot Monitor 6 error event mask. */
+#define XIL_EVENT_ERROR_MASK_HB_MON_7		(0x00002000U) /**< Health Boot Monitor 7 error event mask. */
+/** Error event mask for DAP / JTAG secure-gate device state change. */
+#define XIL_EVENT_ERROR_MASK_DEV_STATE_CHANGE	(0x00004000U) /**< Device state change error event mask. */
 /**
  * @}
  */

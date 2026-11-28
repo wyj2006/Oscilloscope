@@ -4,7 +4,7 @@
     "xci_name": "system_rst_ps7_0_50M_1",
     "cell_name": "rst_ps7_0_50M",
     "component_reference": "xilinx.com:ip:proc_sys_reset:5.0",
-    "ip_revision": "17",
+    "ip_revision": "18",
     "gen_directory": ".",
     "parameters": {
       "component_parameters": {
@@ -46,12 +46,13 @@
       },
       "runtime_parameters": {
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
-        "IPREVISION": [ { "value": "17" } ],
+        "IPREVISION": [ { "value": "18" } ],
         "MANAGED": [ { "value": "TRUE" } ],
         "OUTPUTDIR": [ { "value": "." } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "../../ipshared" } ],
-        "SWVERSION": [ { "value": "2025.2" } ],
+        "SWPRODUCT": [ { "value": "Vivado" } ],
+        "SWVERSION": [ { "value": "2026.2" } ],
         "SYNTHESISFLOW": [ { "value": "OUT_OF_CONTEXT" } ]
       }
     },
@@ -75,7 +76,7 @@
           "mode": "slave",
           "parameters": {
             "ASSOCIATED_RESET": [ { "value": "mb_reset:bus_struct_reset:interconnect_aresetn:peripheral_aresetn:peripheral_reset", "value_src": "constant", "value_permission": "bd", "usage": "all" } ],
-            "FREQ_HZ": [ { "value": "50000000", "value_src": "user_prop", "value_permission": "bd", "resolve_type": "user", "format": "long", "usage": "all" } ],
+            "FREQ_HZ": [ { "value": "150000000", "value_src": "user_prop", "value_permission": "bd", "resolve_type": "user", "format": "long", "usage": "all" } ],
             "FREQ_TOLERANCE_HZ": [ { "value": "0", "value_permission": "bd", "resolve_type": "generated", "format": "long", "is_ips_inferred": true, "is_static_object": false } ],
             "PHASE": [ { "value": "0.0", "value_permission": "bd", "resolve_type": "generated", "format": "float", "is_ips_inferred": true, "is_static_object": false } ],
             "CLK_DOMAIN": [ { "value": "system_processing_system7_0_0_FCLK_CLK0", "value_src": "default_prop", "value_permission": "bd", "resolve_type": "generated", "is_ips_inferred": true, "is_static_object": false } ],
@@ -192,5 +193,5 @@
       }
     }
   },
-  "checksum": "1fd37751"
+  "checksum": "a140f0fb"
 }

@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2017 - 2020 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2023 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -28,12 +28,15 @@
 * 9.0  ml        03/03/23 Added description to fix doxygen warnings.
 * 9.0  ml        09/13/23 Assigned proper suffix to integer constants to fix
 *                         MISRA-C violation for Rule 7.2
+* 9.5  tbk       02/10/26 Added macro for SMC function Id
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
+* @{
 ******************************************************************************/
 
-#ifndef XIL_SMC_H /**< prevent circular inclusions */
-#define XIL_SMC_H /**< by using protection macros */
+#ifndef XIL_SMC_H
+#define XIL_SMC_H
 
 /***************************** Include Files ********************************/
 
@@ -69,6 +72,10 @@ extern "C" {
 #define MMIO_WRITE_SMC_FID	0xC2000013U
 #define MMIO_READ_SMC_FID	0xC2000014U
 #define GET_CHIPID_SMC_FID      0xC2000018U
+
+#define SMC_FID_EXT		0xC2000FFFU	/* SMC FID for extended packet format */
+#define SMC_REQUEST_LEN		6U		/* SMC request buffer length */
+#define SMC_RESPONSE_LEN	6U		/* SMC response buffer length */
 
 /* GEM device IDs */
 #define	DEV_GEM_0			0x18224019
@@ -114,7 +121,7 @@ XSmc_OutVar Xil_Smc(u64 FunctionID, u64 Arg1, u64 Arg2, u64 Arg3, u64 Arg4,
 }
 #endif /* __cplusplus */
 
-#endif /* XIL_SMC_H */
 /**
 * @} End of "addtogroup a53_64_smc_api".
 */
+#endif /* XIL_SMC_H */

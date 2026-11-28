@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2021-2022 Xilinx, Inc.  All rights reserved.
-* Copyright (c) 2022 - 2023 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 /*****************************************************************************/
@@ -21,6 +21,12 @@
  *  1.0  adk   24/11/21 Initial release.
  *  	 adk   07/02/22 Updated the IntrHandler as per XTimer_SetHandler() API.
  *  1.1	 adk   08/08/22 Added doxygen tags.
+ *  2.4  vmt   08/20/26 Added weak sleep and tick timer instance variables.
+ *  2.5  vmt   09/24/26 Initialize the AXI tick timer from SetIntrHandler
+ *                      when IsReady is not set so the handler can be
+ *                      installed before the tick interval is programmed.
+ *  2.5  vmt   09/24/26 Added AXI timer tick configuration from frequency.
+ *  2.5  ml    09/22/26 Fixed doxygen 1.15.0 and compliance checker warnings.
  *</pre>
  *
  *@note
@@ -44,6 +50,7 @@ static void XSleepTimer_AxiTimerStop(XTimer *InstancePtr);
 
 #ifdef XTICKTIMER_IS_AXITIMER
 static void XAxiTimer_TickInterval(XTimer *InstancePtr, u32 Delay);
+static void XAxiTimer_TickIntervalHz(XTimer *InstancePtr, u32 FreqHz);
 static void XAxiTimer_SetIntrHandler(XTimer *InstancePtr, u8 Priority);
 void XAxiTimer_CallbackHandler(void *CallBackRef, u8 TmrCtrNumber);
 static void XTickTimer_AxiTimerStop(XTimer *InstancePtr);
@@ -55,7 +62,7 @@ static void XTickTimer_ClearAxiTimerInterrupt(XTimer *InstancePtr);
 /**
  * Initialize the Axi Timer Sleep Instance
  *
- * @param	InstancePtr is a pointer to the XTimer Instance
+ * @param[out] InstancePtr is a pointer to the XTimer Instance
  *
  * @return	XST_SUCCESS always
  */
@@ -74,7 +81,7 @@ u32 XilSleepTimer_Init(XTimer *InstancePtr)
 /**
  * Initialize the Axi Timer Tick Instance
  *
- * @param	InstancePtr is a pointer to the XTimer Instance
+ * @param[out] InstancePtr is a pointer to the XTimer Instance
  *
  * @return	XST_SUCCESS always
  */
@@ -83,6 +90,7 @@ u32 XilTickTimer_Init(XTimer *InstancePtr)
 {
 	InstancePtr->XTimer_TickIntrHandler = XAxiTimer_SetIntrHandler;
 	InstancePtr->XTimer_TickInterval = XAxiTimer_TickInterval;
+	InstancePtr->XTimer_TickIntervalHz = XAxiTimer_TickIntervalHz;
 	InstancePtr->XTickTimer_Stop = XTickTimer_AxiTimerStop;
 	InstancePtr->XTickTimer_ClearInterrupt = XTickTimer_ClearAxiTimerInterrupt;
 
@@ -94,9 +102,10 @@ u32 XilTickTimer_Init(XTimer *InstancePtr)
 /**
  * Initialize the Axi Timer Instance
  *
- * @param	InstancePtr is a pointer to the instance to be worked on
- * @param	BaseAddress is the Axi Timer Instance baseaddress to be
+ * @param[in] InstancePtr is a pointer to the instance to be worked on
+ * @param[in] BaseAddress is the Axi Timer Instance baseaddress to be
  * 		worked on
+ * @param[out] AxiTimerInstPtr is a pointer to the XTmrCtr instance to initialize
  *
  * @return	XST_SUCCESS if initialization was successful
  * 		XST_FAILURE in case of failure
@@ -128,9 +137,8 @@ static u32 XAxiTimer_Init(XTimer *InstancePtr, UINTPTR BaseAddress,
 /**
  * This function implements the interrupt callback handler
  *
- * @param  CallBackRef is Pointer to the XTimer instance
- *
- * @return	None
+ * @param[in] CallBackRef is Pointer to the XTimer instance
+ * @param[in] TmrCtrNumber is the timer counter that triggered the callback
  *
  ****************************************************************************/
 void XAxiTimer_CallbackHandler(void *CallBackRef, u8 TmrCtrNumber)
@@ -143,28 +151,60 @@ void XAxiTimer_CallbackHandler(void *CallBackRef, u8 TmrCtrNumber)
 
 /*****************************************************************************/
 /**
+ * This function configures the axi timer tick interval from a frequency
+ *
+ * @param[in] InstancePtr is Pointer to the XTimer instance
+ * @param[in] FreqHz is the required tick frequency in Hz
+ *
+ ****************************************************************************/
+static void XAxiTimer_TickIntervalHz(XTimer *InstancePtr, u32 FreqHz)
+{
+	XTmrCtr *AxiTimerInstPtr = &InstancePtr->AxiTimer_TickInst;
+	u32 Tlr;
+
+	Xil_AssertVoid(FreqHz > 0U);
+
+	if (AxiTimerInstPtr->IsReady != XIL_COMPONENT_IS_READY) {
+		XAxiTimer_Init(InstancePtr, XTickTimer_Instance,
+				&InstancePtr->AxiTimer_TickInst);
+	}
+
+	Tlr = AxiTimerInstPtr->Config.SysClockFreqHz / FreqHz;
+	XTmrCtr_SetOptions(AxiTimerInstPtr, 0,
+                           XTC_INT_MODE_OPTION | XTC_AUTO_RELOAD_OPTION |
+			   XTC_DOWN_COUNT_OPTION);
+
+        /*
+         * Set a reset value for the timer counter such that it will expire
+         * earlier than letting it roll over from 0, the reset value is loaded
+         * into the timer counter when it is started
+         */
+        XTmrCtr_SetResetValue(AxiTimerInstPtr, 0, Tlr);
+
+        /*
+	 * Start the timer with the configured reset value.
+         */
+        XTmrCtr_Start(AxiTimerInstPtr, 0);
+}
+
+/*****************************************************************************/
+/**
  * This function configures the axi timer tick interval
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- * @param  Delay is the delay interval
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
+ * @param[in] Delay is the delay interval
  *
  ****************************************************************************/
 static void XAxiTimer_TickInterval(XTimer *InstancePtr, u32 Delay)
 {
 	XTmrCtr *AxiTimerInstPtr = &InstancePtr->AxiTimer_TickInst;
 	u32 Tlr;
-	static u32 IsTickTimerStarted = FALSE;
 
-	if (FALSE == IsTickTimerStarted) {
-#ifdef SDT
-		XAxiTimer_Init(InstancePtr, XTICKTIMER_BASEADDRESS,
-#else
-		XAxiTimer_Init(InstancePtr, XTICKTIMER_DEVICEID,
-#endif
+	Xil_AssertVoid(Delay > 0U);
+
+	if (AxiTimerInstPtr->IsReady != XIL_COMPONENT_IS_READY) {
+		XAxiTimer_Init(InstancePtr, XTickTimer_Instance,
 				&InstancePtr->AxiTimer_TickInst);
-		IsTickTimerStarted = TRUE;
 	}
 
 	Tlr = Delay * (AxiTimerInstPtr->Config.SysClockFreqHz /
@@ -175,7 +215,7 @@ static void XAxiTimer_TickInterval(XTimer *InstancePtr, u32 Delay)
 
         /*
          * Set a reset value for the timer counter such that it will expire
-         * eariler than letting it roll over from 0, the reset value is loaded
+         * earlier than letting it roll over from 0, the reset value is loaded
          * into the timer counter when it is started
          */
         XTmrCtr_SetResetValue(AxiTimerInstPtr, 0, Tlr);
@@ -191,15 +231,19 @@ static void XAxiTimer_TickInterval(XTimer *InstancePtr, u32 Delay)
 /**
  * This function implements the tick interrupt handler
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- * @param  Priority - Priority for the interrupt
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
+ * @param[in] Priority - Priority for the interrupt
  *
  ****************************************************************************/
 static void XAxiTimer_SetIntrHandler(XTimer *InstancePtr, u8 Priority)
 {
 	XTmrCtr *AxiTimerInstPtr = &InstancePtr->AxiTimer_TickInst;
+
+	/* The handler can be installed before the interval is configured. Ensure
+	the timer instance and its interrupt configuration are initialized first. */
+	if (AxiTimerInstPtr->IsReady != XIL_COMPONENT_IS_READY) {
+		XAxiTimer_Init(InstancePtr, XTickTimer_Instance, AxiTimerInstPtr);
+	}
 
 	XTmrCtr_SetHandler(AxiTimerInstPtr, XAxiTimer_CallbackHandler,
 			   InstancePtr);
@@ -213,9 +257,7 @@ static void XAxiTimer_SetIntrHandler(XTimer *InstancePtr, u8 Priority)
 /**
  * This function implements the stop functionality for the tick timer
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
  *
  ****************************************************************************/
 static void XTickTimer_AxiTimerStop(XTimer *InstancePtr)
@@ -229,9 +271,7 @@ static void XTickTimer_AxiTimerStop(XTimer *InstancePtr)
 /**
  * This function clears the tick interrupt status
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
  *
  ****************************************************************************/
 static void XTickTimer_ClearAxiTimerInterrupt(XTimer *InstancePtr)
@@ -239,7 +279,7 @@ static void XTickTimer_ClearAxiTimerInterrupt(XTimer *InstancePtr)
 	XTmrCtr *AxiTimerInstPtr = &InstancePtr->AxiTimer_TickInst;
 	unsigned long ulCSR;
 
-	/* Clear the timer interrupt */
+	/**< Clear the timer interrupt */
 	ulCSR = XTmrCtr_GetControlStatusReg(AxiTimerInstPtr->Config.BaseAddress,
 					    0);
 	XTmrCtr_SetControlStatusReg(AxiTimerInstPtr->Config.BaseAddress,
@@ -252,11 +292,9 @@ static void XTickTimer_ClearAxiTimerInterrupt(XTimer *InstancePtr)
 /**
  * This function configures the sleep interval using axi timer
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- * @param  Delay is the delay interval
- * @param  DelayType is the XTimer_DelayType
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
+ * @param[in] delay is the delay interval
+ * @param[in] DelayType is the XTimer_DelayType
  *
  ****************************************************************************/
 static void XAxiTimer_ModifyInterval(XTimer *InstancePtr, u32 delay,
@@ -271,11 +309,7 @@ static void XAxiTimer_ModifyInterval(XTimer *InstancePtr, u32 delay,
 	static u32 IsSleepTimerStarted = FALSE;
 
 	if (FALSE == IsSleepTimerStarted) {
-#ifdef SDT
-		XAxiTimer_Init(InstancePtr, XSLEEPTIMER_BASEADDRESS,
-#else
-		XAxiTimer_Init(InstancePtr, XSLEEPTIMER_DEVICEID,
-#endif
+		XAxiTimer_Init(InstancePtr, XSleepTimer_Instance,
 				&InstancePtr->AxiTimer_SleepInst);
 		IsSleepTimerStarted = TRUE;
 	}
@@ -297,9 +331,7 @@ static void XAxiTimer_ModifyInterval(XTimer *InstancePtr, u32 delay,
 /**
  * This function implements the stop functionality for the sleep timer
  *
- * @param  InstancePtr is Pointer to the XTimer instance
- *
- * @return	None
+ * @param[in] InstancePtr is Pointer to the XTimer instance
  *
  ****************************************************************************/
 static void XSleepTimer_AxiTimerStop(XTimer *InstancePtr)
@@ -313,12 +345,8 @@ static void XSleepTimer_AxiTimerStop(XTimer *InstancePtr)
 /**
  * Get the time from the Axi Timer Counter Register.
  *
- * @param	Xtime_Global: Pointer to the 64-bit location which will be
+ * @param[out] Xtime_Global: Pointer to the 64-bit location which will be
  * 		updated with the current timer value.
- *
- * @return	None.
- *
- * @note		None.
  *
  ****************************************************************************/
 void XTime_GetTime(XTime *Xtime_Global)
@@ -328,11 +356,7 @@ void XTime_GetTime(XTime *Xtime_Global)
 	static u32 IsSleepTimerStarted = FALSE;
 
 	if (FALSE == IsSleepTimerStarted) {
-#ifdef SDT
-		XAxiTimer_Init(InstancePtr, XSLEEPTIMER_BASEADDRESS,
-#else
-		XAxiTimer_Init(InstancePtr, XSLEEPTIMER_DEVICEID,
-#endif
+		XAxiTimer_Init(InstancePtr, XSleepTimer_Instance,
 				&InstancePtr->AxiTimer_SleepInst);
 		IsSleepTimerStarted = TRUE;
 	}
@@ -340,4 +364,5 @@ void XTime_GetTime(XTime *Xtime_Global)
 	*Xtime_Global = XTmrCtr_GetValue(AxiTimerInstPtr, 0);
 }
 #endif
-/*@}*/
+
+/** @} */

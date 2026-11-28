@@ -6,18 +6,18 @@
       "name": "system",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
       "synth_flow_mode": "Hierarchical",
-      "tool_version": "2025.2",
+      "tool_version": "2026.2",
       "validated": "true"
     },
     "design_tree": {
       "processing_system7_0": "",
-      "display_controller_0": "",
       "axi_mem_intercon": {
         "s00_couplers": {
           "auto_pc": ""
         }
       },
-      "rst_ps7_0_50M": ""
+      "rst_ps7_0_50M": "",
+      "display_controller_0": ""
     },
     "interface_ports": {
       "DDR": {
@@ -268,7 +268,7 @@
     "components": {
       "processing_system7_0": {
         "vlnv": "xilinx.com:ip:processing_system7:5.5",
-        "ip_revision": "8",
+        "ip_revision": "10",
         "xci_name": "system_processing_system7_0_0",
         "xci_path": "ip\\system_processing_system7_0_0\\system_processing_system7_0_0.xci",
         "inst_hier_path": "processing_system7_0",
@@ -290,7 +290,7 @@
             "value": "10.000000"
           },
           "PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ": {
-            "value": "50.000000"
+            "value": "150.000000"
           },
           "PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ": {
             "value": "10.000000"
@@ -300,6 +300,9 @@
           },
           "PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ": {
             "value": "10.000000"
+          },
+          "PCW_ACT_I2C_PERIPHERAL_FREQMHZ": {
+            "value": "50"
           },
           "PCW_ACT_PCAP_PERIPHERAL_FREQMHZ": {
             "value": "200.000000"
@@ -344,7 +347,7 @@
             "value": "111.111115"
           },
           "PCW_CLK0_FREQ": {
-            "value": "50000000"
+            "value": "150000000"
           },
           "PCW_CLK1_FREQ": {
             "value": "10000000"
@@ -361,17 +364,29 @@
           "PCW_EN_CLK0_PORT": {
             "value": "1"
           },
+          "PCW_EN_CLK1_PORT": {
+            "value": "0"
+          },
           "PCW_EN_EMIO_UART0": {
             "value": "0"
           },
           "PCW_EN_RST0_PORT": {
             "value": "1"
           },
+          "PCW_EN_RST1_PORT": {
+            "value": "0"
+          },
           "PCW_EN_UART0": {
             "value": "1"
           },
           "PCW_FCLK_CLK0_BUF": {
             "value": "FALSE"
+          },
+          "PCW_FPGA0_PERIPHERAL_FREQMHZ": {
+            "value": "150"
+          },
+          "PCW_FPGA1_PERIPHERAL_FREQMHZ": {
+            "value": "150"
           },
           "PCW_FPGA_FCLK0_ENABLE": {
             "value": "1"
@@ -403,6 +418,12 @@
           "PCW_MIO_TREE_SIGNALS": {
             "value": "unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#rx#tx#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned#unassigned"
           },
+          "PCW_S_AXI_HP0_DATA_WIDTH": {
+            "value": "32"
+          },
+          "PCW_TRACE_INTERNAL_WIDTH": {
+            "value": "2"
+          },
           "PCW_UART0_GRP_FULL_ENABLE": {
             "value": "0"
           },
@@ -428,53 +449,10 @@
             "value": "0"
           },
           "PCW_USE_S_AXI_GP0": {
+            "value": "0"
+          },
+          "PCW_USE_S_AXI_HP0": {
             "value": "1"
-          }
-        },
-        "interface_ports": {
-          "S_AXI_GP0": {
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Slave",
-            "memory_map_ref": "S_AXI_GP0"
-          }
-        }
-      },
-      "display_controller_0": {
-        "vlnv": "xilinx.com:user:display_controller:1.0",
-        "ip_revision": "12",
-        "xci_name": "system_display_controller_0_0",
-        "xci_path": "ip\\system_display_controller_0_0\\system_display_controller_0_0.xci",
-        "inst_hier_path": "display_controller_0",
-        "has_run_ip_tcl": "true",
-        "parameters": {
-          "C_M_AXI_TARGET_SLAVE_BASE_ADDR": {
-            "value": "0x10000000"
-          }
-        },
-        "interface_ports": {
-          "M_AXI": {
-            "bd_attributes": {
-              "TYPE": {
-                "value": "END_POINT",
-                "value_src": "auto"
-              }
-            },
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Master",
-            "address_space_ref": "M_AXI",
-            "base_address": {
-              "minimum": "0x00000000",
-              "maximum": "0xFFFFFFFF",
-              "width": "32"
-            }
-          }
-        },
-        "addressing": {
-          "address_spaces": {
-            "M_AXI": {
-              "range": "4G",
-              "width": "32"
-            }
           }
         }
       },
@@ -622,7 +600,7 @@
             "components": {
               "auto_pc": {
                 "vlnv": "xilinx.com:ip:axi_protocol_converter:2.1",
-                "ip_revision": "37",
+                "ip_revision": "39",
                 "xci_name": "system_axi_mem_intercon_imp_auto_pc_0",
                 "xci_path": "ip\\system_axi_mem_intercon_imp_auto_pc_0\\system_axi_mem_intercon_imp_auto_pc_0.xci",
                 "inst_hier_path": "axi_mem_intercon/s00_couplers/auto_pc",
@@ -737,18 +715,60 @@
       },
       "rst_ps7_0_50M": {
         "vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
-        "ip_revision": "17",
+        "ip_revision": "18",
         "xci_name": "system_rst_ps7_0_50M_1",
         "xci_path": "ip\\system_rst_ps7_0_50M_1\\system_rst_ps7_0_50M_1.xci",
         "inst_hier_path": "rst_ps7_0_50M",
         "has_run_ip_tcl": "true"
+      },
+      "display_controller_0": {
+        "vlnv": "xilinx.com:user:display_controller:1.0",
+        "ip_revision": "38",
+        "xci_name": "system_display_controller_0_0",
+        "xci_path": "ip\\system_display_controller_0_0\\system_display_controller_0_0.xci",
+        "inst_hier_path": "display_controller_0",
+        "has_run_ip_tcl": "true",
+        "parameters": {
+          "C_M_AXI_BURST_LEN": {
+            "value": "128"
+          },
+          "C_M_AXI_TARGET_SLAVE_BASE_ADDR": {
+            "value": "0x10000000"
+          }
+        },
+        "interface_ports": {
+          "M_AXI": {
+            "bd_attributes": {
+              "TYPE": {
+                "value": "END_POINT",
+                "value_src": "auto"
+              }
+            },
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "mode": "Master",
+            "address_space_ref": "M_AXI",
+            "base_address": {
+              "minimum": "0x00000000",
+              "maximum": "0xFFFFFFFF",
+              "width": "32"
+            }
+          }
+        },
+        "addressing": {
+          "address_spaces": {
+            "M_AXI": {
+              "range": "4G",
+              "width": "32"
+            }
+          }
+        }
       }
     },
     "interface_nets": {
       "axi_mem_intercon_M00_AXI": {
         "interface_ports": [
           "axi_mem_intercon/M00_AXI",
-          "processing_system7_0/S_AXI_GP0"
+          "processing_system7_0/S_AXI_HP0"
         ]
       },
       "display_controller_0_M_AXI": {
@@ -798,12 +818,12 @@
       "processing_system7_0_FCLK_CLK0": {
         "ports": [
           "processing_system7_0/FCLK_CLK0",
-          "processing_system7_0/S_AXI_GP0_ACLK",
-          "axi_mem_intercon/M00_ACLK",
-          "rst_ps7_0_50M/slowest_sync_clk",
-          "axi_mem_intercon/S00_ACLK",
           "axi_mem_intercon/ACLK",
-          "display_controller_0/m_axi_aclk"
+          "axi_mem_intercon/S00_ACLK",
+          "axi_mem_intercon/M00_ACLK",
+          "display_controller_0/m_axi_aclk",
+          "processing_system7_0/S_AXI_HP0_ACLK",
+          "rst_ps7_0_50M/slowest_sync_clk"
         ]
       },
       "processing_system7_0_FCLK_RESET0_N": {
@@ -815,9 +835,9 @@
       "rst_ps7_0_50M_peripheral_aresetn": {
         "ports": [
           "rst_ps7_0_50M/peripheral_aresetn",
-          "axi_mem_intercon/M00_ARESETN",
-          "axi_mem_intercon/S00_ARESETN",
           "axi_mem_intercon/ARESETN",
+          "axi_mem_intercon/S00_ARESETN",
+          "axi_mem_intercon/M00_ARESETN",
           "display_controller_0/m_axi_aresetn"
         ]
       }
@@ -827,15 +847,10 @@
         "address_spaces": {
           "M_AXI": {
             "segments": {
-              "SEG_processing_system7_0_GP0_DDR_LOWOCM": {
-                "address_block": "/processing_system7_0/S_AXI_GP0/GP0_DDR_LOWOCM",
+              "SEG_processing_system7_0_HP0_DDR_LOWOCM": {
+                "address_block": "/processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM",
                 "offset": "0x00000000",
                 "range": "1G"
-              },
-              "SEG_processing_system7_0_GP0_IOP": {
-                "address_block": "/processing_system7_0/S_AXI_GP0/GP0_IOP",
-                "offset": "0xE0000000",
-                "range": "4M"
               }
             }
           }

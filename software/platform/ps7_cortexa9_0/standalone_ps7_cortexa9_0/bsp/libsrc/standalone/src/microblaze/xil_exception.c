@@ -1,6 +1,9 @@
+/**
+ *@cond nocomments
+ */
 /******************************************************************************
 * Copyright (C) 2009 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -23,11 +26,13 @@
 * 8.0	sk   03/17/22 Delete MB_ExceptionVectorTableEntry structure to fix
 * 		      misra_c_2012_rule_5_6 violation.
 * 8.0	sk   03/17/22 Move MB_ExceptionVectorTableEntry and MB_InterruptVector
-* 		      TableEntry decalrations to header files and delete
-* 		      interrupts and excpetion disable and enable declarations
+* 		      TableEntry declarations to header files and delete
+* 		      interrupts and exception disable and enable declarations
 * 		      to fix misra_c_2012_rule_8_5 violations.
 * 9.0   ml   03/03/23 Add description to fix doxygen warnings.
 * 9.2   mus  07/30/24 Fix bug in microblaze_disable_interrupts API in SDT flow.
+* 9.5   ml   04/23/26 Add MSR mask save/restore APIs (CR-1262972).
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 ******************************************************************************/
@@ -72,12 +77,12 @@ extern MB_InterruptVectorTableEntry MB_InterruptVectorTable[MB_INTERRUPT_VECTOR_
 
 /****************************************************************************/
 /**
- * @brief   This function is a stub handler that is the default handler that gets
+ * @brief   Default stub exception handler that gets
  *          called if the application has not setup a handler for a specific
  *          exception. The function interface has to match the interface
  *          specified for a handler even though none of the arguments are used.
  *
- * @param	Data: unused by this function.
+ * @param[in]	Data: unused by this function.
  *
  *****************************************************************************/
 static void Xil_ExceptionNullHandler(void *Data)
@@ -125,6 +130,105 @@ void Xil_ExceptionDisable(void)
 	microblaze_disable_interrupts();
 }
 
+/**
+ * @def XIL_EXCEPTIONS_MASK
+ * @brief MSR bits that the mask-based exception APIs are allowed to
+ *        manipulate. Equals XIL_EXCEPTION_ALL when hardware exceptions
+ *        are configured, or XIL_INTERRUPTS_MASK (IE only) otherwise,
+ *        matching the guard used by Xil_ExceptionEnable() /
+ *        Xil_ExceptionDisable().
+ */
+#ifdef MICROBLAZE_EXCEPTIONS_ENABLED
+#define XIL_EXCEPTIONS_MASK	XIL_EXCEPTION_ALL
+#else
+#define XIL_EXCEPTIONS_MASK	XIL_INTERRUPTS_MASK
+#endif
+
+/*****************************************************************************/
+/**
+* @brief	Enable interrupt and/or hardware exception bits in MSR.
+*		Only bits present in XIL_EXCEPTIONS_MASK are applied;
+*		XIL_EXCEPTION_MASK (EE) is ignored when
+*		MICROBLAZE_EXCEPTIONS_ENABLED is not defined.
+*
+* @param[in]	Mask bits to set (typically XIL_INTERRUPTS_MASK,
+*		XIL_EXCEPTION_MASK, or XIL_EXCEPTION_ALL).
+*
+*****************************************************************************/
+void Xil_ExceptionEnableMask(u32 Mask)
+{
+	UINTPTR bits = (UINTPTR)((Mask) & XIL_EXCEPTIONS_MASK);
+	UINTPTR val = mfmsr();
+
+	__asm__ __volatile__ ("" ::: "memory");
+	mtmsr(val | bits);
+	__asm__ __volatile__ ("" ::: "memory");
+}
+
+/*****************************************************************************/
+/**
+* @brief	Disable interrupt and/or hardware exception bits in MSR.
+*		Only bits present in XIL_EXCEPTIONS_MASK are applied;
+*		XIL_EXCEPTION_MASK (EE) is ignored when
+*		MICROBLAZE_EXCEPTIONS_ENABLED is not defined.
+*
+* @param[in]	Mask bits to clear (typically XIL_INTERRUPTS_MASK,
+*		XIL_EXCEPTION_MASK, or XIL_EXCEPTION_ALL).
+*
+*****************************************************************************/
+void Xil_ExceptionDisableMask(u32 Mask)
+{
+	UINTPTR bits = (UINTPTR)((Mask) & XIL_EXCEPTIONS_MASK);
+	UINTPTR val = mfmsr();
+
+	mtmsr(val & ~bits);
+	__asm__ __volatile__ ("" ::: "memory");
+}
+
+/*****************************************************************************/
+/**
+* @brief	Save MSR interrupt/exception enable bits and disable them
+*		(critical section enter). Pair with
+*		Xil_ExceptionRestoreEnable(). Only bits in
+*		XIL_EXCEPTIONS_MASK are saved and disabled;
+*		XIL_EXCEPTION_MASK (EE) is excluded when
+*		MICROBLAZE_EXCEPTIONS_ENABLED is not defined.
+*
+* @return	Previous MSR enable bits for use with
+*		Xil_ExceptionRestoreEnable().
+*
+*****************************************************************************/
+u32 Xil_ExceptionSaveDisable(void)
+{
+	UINTPTR msr = mfmsr();
+	UINTPTR state = msr & (UINTPTR)XIL_EXCEPTIONS_MASK;
+
+	if (state != 0U) {
+		mtmsr(msr & ~(UINTPTR)XIL_EXCEPTIONS_MASK);
+	}
+	__asm__ __volatile__ ("" ::: "memory");
+	return (u32)state;
+}
+
+/*****************************************************************************/
+/**
+* @brief	Restore MSR interrupt/exception enable bits saved by
+*		Xil_ExceptionSaveDisable() (critical section exit).
+*		Only bits in XIL_EXCEPTIONS_MASK are restored.
+*
+* @param[in]	flags value returned from Xil_ExceptionSaveDisable().
+*
+*****************************************************************************/
+void Xil_ExceptionRestoreEnable(u32 flags)
+{
+	UINTPTR msr = mfmsr();
+	UINTPTR f = (UINTPTR)(flags & XIL_EXCEPTIONS_MASK);
+
+	__asm__ __volatile__ ("" ::: "memory");
+	mtmsr((msr & ~(UINTPTR)XIL_EXCEPTIONS_MASK) | f);
+	__asm__ __volatile__ ("" ::: "memory");
+}
+
 /*****************************************************************************/
 /**
 *@brief     Makes the connection between the Id of the exception source and the
@@ -132,14 +236,14 @@ void Xil_ExceptionDisable(void)
 *           The argument provided in this call as the DataPtr is used as the
 *           argument for the handler when it is called.
 *
-* @param    Exception_id contains the 32 bit ID of the exception source and should
 *           be XIL_EXCEPTION_INT or be in the range of 0 to XIL_EXCEPTION_LAST.
 *	        See xil_mach_exception.h for further information.
-* @param    Handler: handler function to be registered for exception
-* @param    Data: a reference to data that will be passed to the handler
 *           when it gets called.
 *
 ****************************************************************************/
+/**
+ *@endcond
+ */
 void Xil_ExceptionRegisterHandler(u32 Exception_id, Xil_ExceptionHandler Handler,
 				  void *Data)
 {
@@ -156,16 +260,21 @@ void Xil_ExceptionRegisterHandler(u32 Exception_id, Xil_ExceptionHandler Handler
 }
 
 
+/**
+ *@cond nocomments
+ */
 /*****************************************************************************/
 /**
 * @brief    Removes the handler for a specific exception Id. The stub handler
 *           is then registered for this exception Id.
 *
-* @param    Exception_id contains the 32 bit ID of the exception source and should
 *           be XIL_EXCEPTION_INT or in the range of 0 to XIL_EXCEPTION_LAST.
 *	        See xexception_l.h for further information.
 *
 ****************************************************************************/
+/**
+ *@endcond
+ */
 void Xil_ExceptionRemoveHandler(u32 Exception_id)
 {
 	if (Exception_id == XIL_EXCEPTION_ID_INT) {
@@ -184,6 +293,7 @@ void Xil_ExceptionRemoveHandler(u32 Exception_id)
 
 
 #ifdef SDT
+/** @brief Enable MicroBlaze hardware exceptions globally. */
 void microblaze_enable_exceptions(void) {
 	UINTPTR val=0;
 
@@ -196,6 +306,7 @@ void microblaze_enable_exceptions(void) {
 
 }
 
+/** @brief Disable MicroBlaze hardware exceptions globally. */
 void microblaze_disable_exceptions(void) {
         UINTPTR val=0;
 
@@ -208,6 +319,7 @@ void microblaze_disable_exceptions(void) {
 
 }
 
+/** @brief Enable MicroBlaze interrupts globally. */
 void microblaze_enable_interrupts(void) {
 	UINTPTR val=0;
 
@@ -221,6 +333,7 @@ void microblaze_enable_interrupts(void) {
 }
 
 
+/** @brief Disable MicroBlaze interrupts globally. */
 void microblaze_disable_interrupts(void) {
         UINTPTR val=0;
 
@@ -234,5 +347,11 @@ void microblaze_disable_interrupts(void) {
 }
 #endif
 /**
+ *@cond nocomments
+ */
+/**
 * @} End of "addtogroup microblaze_exception_apis".
 */
+/**
+ *@endcond
+ */

@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2009 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2023 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -10,6 +10,8 @@
 * @file xdmaps_sinit.c
 * @addtogroup dmaps Overview
 * @{
+*
+* @brief Implements static initialization for the XDmaPs driver.
 *
 * The implementation of the XDmaPs driver's static initialization
 * functionality.
@@ -47,22 +49,9 @@ extern XDmaPs_Config XDmaPs_ConfigTable[];
 
 /****************************************************************************/
 /**
-*
-* Looks up the device configuration based on the unique device ID. The table
-* contains the configuration info for each device in the system.
-*
-* @param DeviceId contains the ID of the device
-*
-* @return
-*
-* A pointer to the configuration structure or NULL if the specified device
-* is not in the system.
-*
-* @note
-*
-* None.
-*
-******************************************************************************/
+ * @brief Looks up device configuration by device ID or base address.
+ *
+ *****************************************************************************/
 #ifndef SDT
 XDmaPs_Config *XDmaPs_LookupConfig(u16 DeviceId)
 {
@@ -96,6 +85,11 @@ XDmaPs_Config *XDmaPs_LookupConfig(UINTPTR BaseAddress)
 	return CfgPtr;
 }
 
+/*****************************************************************************/
+/**
+ * @brief Returns the driver configuration table index for the given base address.
+ *
+ *****************************************************************************/
 u32 XDmaPs_GetDrvIndex(XDmaPs *InstancePtr, UINTPTR BaseAddress)
 {
 	u32 Index = 0;

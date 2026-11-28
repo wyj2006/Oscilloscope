@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2009 - 2021 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2024 - 2025 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2024 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -30,20 +30,24 @@
 * 		      __FILE__ with __FILENAME__ in assert APIs.
 * 9.3   vmt  03/03/25 Fixed compilation warning of strrchr
 *                     [-Wbuiltin-declaration-mismatch]
+* 9.5   bdk  11/13/25 Added explicit parentheses for strrchr to fix MISRA-C
+*		      violation for rule 12.1.
+* 9.5   bdk  11/29/25 Modified __FILENAME__ macro  to fix MISRA-C
+*                     violation for rule 10.1, 18.4 and 10.3.
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 ******************************************************************************/
 
+
+#ifndef XIL_ASSERT_H
+#define XIL_ASSERT_H
+
 /**
  *@cond nocomments
  */
-
-#ifndef XIL_ASSERT_H	/* prevent circular inclusions */
-#define XIL_ASSERT_H	/* by using protection macros */
-
 #include "xil_types.h"
 #include <string.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,7 +60,9 @@ extern "C" {
 #if ! defined(SDT)
 #define __FILENAME__	__FILE__
 #else
-#define __FILENAME__	(strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
+#define __FILENAME__	((strrchr(__FILE__, (s32)'/') != NULL) ?	\
+(&(strrchr(__FILE__, (s32)'/')[1])) : ((strrchr(__FILE__, (s32)'\\') != NULL) ?	\
+(&(strrchr(__FILE__, (s32)'\\')[1])) : __FILE__))
 #endif
 
 #define XIL_ASSERT_NONE     0U
@@ -88,7 +94,7 @@ typedef void (*Xil_AssertCallback) (const char8 *File, s32 Line);
 *           accommodate tests so that asserts which fail allow execution to
 *           continue.
 *
-* @param    Expression: expression to be evaluated. If it evaluates to
+* @param[in]    Expression: expression to be evaluated. If it evaluates to
 *           false, the assert occurs.
 *
 * @return   Returns void unless the Xil_AssertWait variable is true, in which
@@ -113,7 +119,7 @@ typedef void (*Xil_AssertCallback) (const char8 *File, s32 Line);
 *           used to accommodate tests so that asserts which fail allow execution
 *           to continue.
 *
-* @param    Expression: expression to be evaluated. If it evaluates to false,
+* @param[in]    Expression: expression to be evaluated. If it evaluates to false,
 *           the assert occurs.
 *
 * @return   Returns 0 unless the Xil_AssertWait variable is true, in which
@@ -182,7 +188,7 @@ void Xil_AssertSetCallback(Xil_AssertCallback Routine);
 }
 #endif
 
-#endif	/* end of protection macro */
 /**
 * @} End of "addtogroup common_assert_apis".
 */
+#endif	/* end of protection macro */

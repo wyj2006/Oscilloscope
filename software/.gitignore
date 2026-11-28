@@ -17,5 +17,10 @@
 .pdi
 .vitisWorkspace.json
 
+.cache
+
+**/_ide/*
+!**/_ide/version.ini
+!**/_ide/launch.json
 _ide/logs
 _ide/.wsdata

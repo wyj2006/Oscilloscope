@@ -1,6 +1,6 @@
 #include "xadcps.h"
 
-XAdcPs_Config XAdcPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XAdcPs_Config XAdcPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,zynq-xadc-1.00.a", /* compatible */

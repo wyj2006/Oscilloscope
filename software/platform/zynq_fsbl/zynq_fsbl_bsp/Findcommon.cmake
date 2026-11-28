@@ -1,5 +1,5 @@
 
-# Copyright (C) 2023 - 2025 Advanced Micro Devices, Inc.  All rights reserved.
+# Copyright (C) 2023 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 # SPDX-License-Identifier: MIT
 
 option(YOCTO "Yocto based embeddedsw FLOW" OFF)
@@ -7,7 +7,7 @@ set(CMAKE_POLICY_DEFAULT_CMP0140 OLD)
 
 if (YOCTO)
 find_package(commonmeta QUIET)
-ADD_COMPILE_DEFINITIONS(-DYOCTO_FLOW)
+set(CMAKE_INCLUDE_PATH "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Headers include path")
 endif()
 
 set (CMAKE_INSTALL_LIBDIR "lib")
@@ -92,7 +92,6 @@ function(get_headers headers)
 	list(APPEND clean_headers ${CMAKE_INCLUDE_PATH}/${header})
 	set(clean_headers ${clean_headers} PARENT_SCOPE)
     endforeach()
-    return(${clean_headers})
 endfunction()
 
 macro(subdirlist result curdir)
@@ -123,7 +122,8 @@ function (linker_gen path)
 	endif()
 	if (NOT DEFINED STACK_SIZE)
 		if(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze") OR
-			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv"))
+			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv") OR
+			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "asu"))
 	        set(STACK_SIZE 0x400)
 	    else()
 	        set(STACK_SIZE 0x2000)
@@ -131,7 +131,8 @@ function (linker_gen path)
 	endif()
 	if (NOT DEFINED HEAP_SIZE)
 		if(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze") OR
-			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv"))
+			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv") OR
+			("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "asu"))
 	        set(HEAP_SIZE 0x800)
 	    else()
 	        set(HEAP_SIZE 0x2000)
@@ -164,7 +165,8 @@ function (linker_gen path)
             list(APPEND LINKER_FILE lscript_mb.ld.in)
         endif()
 
-        if(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv"))
+        if(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv") OR
+          ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "asu"))
             configure_file(${path}/lscript_mb_riscv.ld.in ${CMAKE_SOURCE_DIR}/lscript.ld)
             list(APPEND LINKER_FILE_PATH ${path}/lscript_mb_riscv.ld.in)
             list(APPEND LINKER_FILE lscript_mb_riscv.ld.in)
@@ -206,6 +208,7 @@ function (linker_gen path)
             file (REMOVE_RECURSE ${path})
         endif()
     endif()
+
 endfunction(linker_gen)
 
 function(gen_exheader path drvname addr prefix)

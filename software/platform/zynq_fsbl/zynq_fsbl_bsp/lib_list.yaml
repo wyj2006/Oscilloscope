@@ -4,20 +4,107 @@ ps7_cortexa9_0:
       description: lwip220 library lwIP (light weight IP) is an open source TCP/IP stack configured for AMD hard and soft Ethernet MACs.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\ThirdParty\sw_services\lwip220_v1_3
-      examples: {}
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\ThirdParty\sw_services\lwip220_v1_5
+      examples:
+        lwip_example_igmp_main.c:
+        - lwip_example_igmp_app.c
+        - lwip_example_igmp_app.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_tftpclient_main.c:
+        - lwip_example_tftp_client.c
+        - lwip_example_tftpclient_common.h
+        - lwip_example_tftp_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_tftpserver_main.c:
+        - lwip_example_tftp_server.c
+        - lwip_example_tftpserver_common.h
+        - lwip_example_tftp_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_ws_main.c:
+        - lwip_example_webserver.c
+        - lwip_example_webserver.h
+        - lwip_example_web_utils.c
+        - lwip_example_ws_http_response.c
+        - lwip_example_ws_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        freertos_lwip_example_igmp_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_igmp_app.c
+        - freertos_lwip_example_igmp_app.h
+        freertos_lwip_example_tftpclient_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_tftp_platform_fs.c
+        - freertos_lwip_example_tftp_platform_fs.h
+        - freertos_lwip_example_tftp_client.c
+        - freertos_lwip_example_tftpclient_common.h
+        freertos_lwip_example_tftpserver_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_tftp_platform_fs.c
+        - freertos_lwip_example_tftp_platform_fs.h
+        - freertos_lwip_example_tftp_server.c
+        - freertos_lwip_example_tftpserver_common.h
+        freertos_lwip_example_ws_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_ws_platform_fs.c
+        - freertos_lwip_example_web_utils.c
+        - freertos_lwip_example_ws_http_response.c
+        - freertos_lwip_example_webserver.c
+        - freertos_lwip_example_webserver.h
     xilffs:
       description: Generic Fat File System Library.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilffs_v5_5
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilffs_v5_7
       examples:
         xilffs_polled_example.c: []
     xilflash:
       description: Xilinx Flash library for Intel/AMD CFI compliant parallel flash.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilflash_v4_12
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilflash_v4_14
       examples:
         xilflash_devicecontrol_example.c: []
         xilflash_platform_flash_example.c: []
@@ -27,45 +114,130 @@ ps7_cortexa9_0:
       description: Xilinx RSA Library to access RSA and SHA software algorithms on Zynq.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilrsa_v1_8
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilrsa_v1_8
       examples: {}
     xilskey:
       description: Xilinx Secure Key Library supports programming efuse and bbram.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilskey_v7_8
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilskey_v8_0
       examples:
         xilskey_bbram_example.c:
         - xilskey_input.h
         xilskey_efuse_example.c:
         - xilskey_input.h
-        xilskey_bbram_ultrascale_example.c:
-        - xilskey_bbram_ultrascale_input.h
     xiltimer:
       description: Xiltimer library provides generic timer interface for the timer IP's.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_3
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_5
       examples: {}
   freertos:
     lwip220:
       description: lwip220 library lwIP (light weight IP) is an open source TCP/IP stack configured for AMD hard and soft Ethernet MACs.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\ThirdParty\sw_services\lwip220_v1_3
-      examples: {}
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\ThirdParty\sw_services\lwip220_v1_5
+      examples:
+        lwip_example_igmp_main.c:
+        - lwip_example_igmp_app.c
+        - lwip_example_igmp_app.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_tftpclient_main.c:
+        - lwip_example_tftp_client.c
+        - lwip_example_tftpclient_common.h
+        - lwip_example_tftp_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_tftpserver_main.c:
+        - lwip_example_tftp_server.c
+        - lwip_example_tftpserver_common.h
+        - lwip_example_tftp_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        lwip_example_ws_main.c:
+        - lwip_example_webserver.c
+        - lwip_example_webserver.h
+        - lwip_example_web_utils.c
+        - lwip_example_ws_http_response.c
+        - lwip_example_ws_platform_fs.c
+        - lwip_example_tftp_platform_fs.h
+        - lwip_example_platform.c
+        - lwip_example_platform.h
+        - lwip_example_platform_config.h
+        - lwip_example_platform_mb.c
+        - lwip_example_platform_zynq.c
+        - lwip_example_platform_zynqmp.c
+        - lwip_example_i2c_access.c
+        - lwip_example_iic_phyreset.c
+        - lwip_example_sfp.c
+        - lwip_example_si5324.c
+        freertos_lwip_example_igmp_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_igmp_app.c
+        - freertos_lwip_example_igmp_app.h
+        freertos_lwip_example_tftpclient_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_tftp_platform_fs.c
+        - freertos_lwip_example_tftp_platform_fs.h
+        - freertos_lwip_example_tftp_client.c
+        - freertos_lwip_example_tftpclient_common.h
+        freertos_lwip_example_tftpserver_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_tftp_platform_fs.c
+        - freertos_lwip_example_tftp_platform_fs.h
+        - freertos_lwip_example_tftp_server.c
+        - freertos_lwip_example_tftpserver_common.h
+        freertos_lwip_example_ws_main.c:
+        - lwip_example_iic_phyreset.c
+        - lwip_example_platform_config.h
+        - freertos_lwip_example_ws_platform_fs.c
+        - freertos_lwip_example_web_utils.c
+        - freertos_lwip_example_ws_http_response.c
+        - freertos_lwip_example_webserver.c
+        - freertos_lwip_example_webserver.h
     xilffs:
       description: Generic Fat File System Library.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilffs_v5_5
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilffs_v5_7
       examples:
         xilffs_polled_example.c: []
     xilflash:
       description: Xilinx Flash library for Intel/AMD CFI compliant parallel flash.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilflash_v4_12
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilflash_v4_14
       examples:
         xilflash_devicecontrol_example.c: []
         xilflash_platform_flash_example.c: []
@@ -75,23 +247,21 @@ ps7_cortexa9_0:
       description: Xilinx RSA Library to access RSA and SHA software algorithms on Zynq.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilrsa_v1_8
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilrsa_v1_8
       examples: {}
     xilskey:
       description: Xilinx Secure Key Library supports programming efuse and bbram.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xilskey_v7_8
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xilskey_v8_0
       examples:
         xilskey_bbram_example.c:
         - xilskey_input.h
         xilskey_efuse_example.c:
         - xilskey_input.h
-        xilskey_bbram_ultrascale_example.c:
-        - xilskey_bbram_ultrascale_input.h
     xiltimer:
       description: Xiltimer library provides generic timer interface for the timer IP's.
       depends_libs: []
       path:
-      - D:\AMDDesignTools\2025.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_3
+      - D:\AMDDesignTools\2026.2\Vitis\data\embeddedsw\lib\sw_services\xiltimer_v2_5
       examples: {}

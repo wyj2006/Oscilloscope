@@ -1,6 +1,6 @@
 #include "xuartps.h"
 
-XUartPs_Config XUartPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XUartPs_Config XUartPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,xuartps", /* compatible */

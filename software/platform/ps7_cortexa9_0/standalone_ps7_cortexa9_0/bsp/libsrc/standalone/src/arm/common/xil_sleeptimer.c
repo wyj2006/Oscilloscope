@@ -1,5 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2017 - 2022 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -29,7 +30,7 @@
 * 		      fix misra_c_2012_rule_8_2 violation.
 * 7.7	sk   01/10/22 Add braces for the if statement to make it a compound
 * 		      statement and fix misra_c_2012_rule_15_6 violation.
-*
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *****************************************************************************/
 
@@ -50,14 +51,11 @@
 * This is a helper function used by sleep/usleep APIs to
 * have delay in sec/usec
 *
-* @param            delay - delay time in seconds/micro seconds
+* @param[in] delay - delay time in seconds/micro seconds
 *
-* @param            frequency - Number of counts per second/micro second
+* @param[in] frequency - Number of counts per second/micro second
 *
-* @return           none
-*
-* @note             none
-*
+
 *****************************************************************************/
 void Xil_SleepTTCCommon(u32 delay, u64 frequency)
 {
@@ -87,14 +85,9 @@ void Xil_SleepTTCCommon(u32 delay, u64 frequency)
 /*****************************************************************************/
 /**
 *
-* This API starts the Triple Timer Counter
+* This API starts the Triple Timer Counter. This API takes no parameters.
 *
-* @param            none
-*
-* @return           none
-*
-* @note             none
-*
+
 *****************************************************************************/
 void XTime_StartTTCTimer(void)
 {
@@ -124,7 +117,7 @@ void XTime_StartTTCTimer(void)
 		if ((TimerCntrl & XSLEEP_TIMER_TTC_CNT_CNTRL_DIS_MASK) == 0U) {
 		    TimerPrescalar = XSleep_ReadCounterVal(SLEEP_TIMER_BASEADDR +
 					       XSLEEP_TIMER_TTC_CLK_CNTRL_OFFSET);
-		/* check if Timer is configured with proper functionalty for sleep */
+		/* check if Timer is configured with proper functionality for sleep */
 		   if ((TimerPrescalar & XSLEEP_TIMER_TTC_CLK_CNTRL_PS_EN_MASK) == 0U) {
 						return;
 		   }

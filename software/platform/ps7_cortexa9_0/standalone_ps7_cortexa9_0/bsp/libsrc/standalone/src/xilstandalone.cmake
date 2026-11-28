@@ -1,4 +1,4 @@
-# Copyright (c) 2023 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+# Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/common/StandaloneExample.cmake NO_POLICY_SCOPE)
@@ -7,7 +7,7 @@ if((("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa72")
         OR ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa53")
         OR ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa53-32")
 	OR ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")) AND
-	(YOCTO OR (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "FreeRTOS")))
+        (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "FreeRTOS"))
 	option(standalone_hypervisor_guest "Enable hypervisor guest for EL1 Nonsecure. If hypervisor guest is not selected, BSP will be built for EL3." OFF)
 	option(standalone_el1_ns "Enable plain EL1 Nonsecure." OFF)
 	option(standalone_use_xen_pv_console "Use Xen PV console as console input/output" ON)
@@ -103,7 +103,7 @@ if(("${CMAKE_MACHINE}" STREQUAL "VersalNet") AND
    ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa78"))
     option(standalone_enable_minimal_xlat_tbl "Configures translation table only for initial 4 TB address space. Translation table size will be reduced by ~1 MB. It is applicable only for CortexA78 BSP. Enable it by default to fit executable in OCM memory, If users want to access peripheral/Memory mapped beyond 4 TB, it must be disabled." ON)
     if(standalone_enable_minimal_xlat_tbl)
-        ADD_DEFINITIONS(-DENABLE_MINIMAL_XLAT_TBL)
+        set(ENABLE_MINIMAL_XLAT_TBL ON)
     endif()
 endif()
 
@@ -123,6 +123,28 @@ elseif(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "plm_microblaze"))
     set(VERSAL_PLM " ")
 elseif(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze"))
     set(PLATFORM_MB " ")
+elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv")
+	option(standalone_riscv_mode_switch
+		"Enable RISC-V M/U privilege mode switch (Xil_EnterUserMode/Xil_ResumeUserSession, trap demux, PMP init)"
+		OFF)
+	if(standalone_riscv_mode_switch)
+		set(RISCV_MODE_SWITCH 1)
+		add_compile_definitions(RISCV_MODE_SWITCH=1)
+	endif()
+
+	option(standalone_riscv_user_app
+		"Build as the guest (U-mode) app of an RISC-V mode-switch pair: skip M-only CSR setup in boot.S/xil_exception.c"
+		OFF)
+	if(standalone_riscv_user_app)
+		set(RISCV_USER_APP 1)
+		add_compile_definitions(RISCV_USER_APP=1)
+	endif()
+
+	if(standalone_riscv_mode_switch AND standalone_riscv_user_app)
+		message(FATAL_ERROR
+			"standalone_riscv_mode_switch and standalone_riscv_user_app are mutually exclusive: "
+			"enable mode_switch on the monitor BSP and user_app on the guest BSP only.")
+	endif()
 endif()
 
 if(("${CMAKE_MACHINE}" STREQUAL "VersalNet") AND
@@ -267,7 +289,7 @@ set(standalone_enable_sw_intrusive_profiling "None" CACHE STRING "This option is
 SET_PROPERTY(CACHE standalone_enable_sw_intrusive_profiling PROPERTY STRINGS "None")
 set(standalone_profile_timer "None" CACHE STRING "This option is not supported in the Unified Vitis IDE in this version. Change to the classic IDE if you want to use this option")
 SET_PROPERTY(CACHE standalone_profile_timer PROPERTY STRINGS "None")
-# Processor CMake Cache entires
+# Processor CMake Cache entries
 cmake_path(GET CMAKE_C_COMPILER_AR FILENAME compiler_ar)
 set(proc_archiver ${compiler_ar} CACHE STRING "Archiver used to archive libraries for both BSP generation as well as applications.")
 cmake_path(GET CMAKE_ASM_COMPILER FILENAME asm_compiler)
@@ -276,6 +298,19 @@ cmake_path(GET CMAKE_C_COMPILER FILENAME compiler)
 set(proc_compiler ${compiler} CACHE STRING "Compiler used to compile both BSP/libraries and applications.")
 set(proc_compiler_flags ${TOOLCHAIN_C_FLAGS} "-c" CACHE STRING "Compiler Flags used in BSP and library generation.'-c'flag stands for 'compile and assemble, but do not link'.Without this flag, gcc tries to link the code, which will fail because there is no application involved during libgen.'-O2' can be overwritten by extra compile flags.")
 set(proc_extra_compiler_flags ${TOOLCHAIN_EXTRA_C_FLAGS} CACHE STRING "Extra Compiler Flags used in BSP and library generation")
+
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa9")
+    set(FPU_HARD_FLOAT_ABI_ENABLED 0)
+    set(_fpu_flags "${proc_compiler_flags};${proc_extra_compiler_flags}")
+    set(_fpu_abi_matches "")
+    string(REGEX MATCHALL "-mfloat-abi=[^; ]+" _fpu_abi_matches "${_fpu_flags}")
+    if(_fpu_abi_matches)
+        list(GET _fpu_abi_matches -1 _fpu_abi_last)
+        if("${_fpu_abi_last}" STREQUAL "-mfloat-abi=hard")
+            set(FPU_HARD_FLOAT_ABI_ENABLED 1)
+        endif()
+    endif()
+endif()
 
 # If the PG flag is present, remove any references to it as BSP doesn't support the mcount API.
 remove_pg()

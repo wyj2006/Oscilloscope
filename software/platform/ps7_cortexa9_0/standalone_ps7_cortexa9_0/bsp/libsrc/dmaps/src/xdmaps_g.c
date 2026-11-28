@@ -1,6 +1,6 @@
 #include "xdmaps.h"
 
-XDmaPs_Config XDmaPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XDmaPs_Config XDmaPs_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"arm,pl330", /* compatible */

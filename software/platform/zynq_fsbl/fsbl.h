@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2012 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (c) 2022 - 2025, Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -101,7 +101,7 @@
 * 						724166 FSBL doesn’t use PPK authenticated by Boot ROM
 * 						 for authenticating the Partition images
 * 						Resolution: FSBL now uses the PPK left by Boot ROM in
-* 						OCM for authencating the SPK
+* 						OCM for authenticating the SPK
 *
 * 						724165 Partition Header used by FSBL is not
 * 						authenticated
@@ -157,7 +157,7 @@
 *						configuration
 *						Resolution: Reverted back the changes of 724620. PCAP_MODE
 *						and PCAP_PR bits are not changed
-* 8.00a kc  01/16/13    767798 Fsbl MD5 Checksum failiure for encrypted images
+* 8.00a kc  01/16/13    767798 Fsbl MD5 Checksum failure for encrypted images
 * 						Resolution: For checksum enabled partitions, total 
 *						total partition image length is copied now.
 *						761895 FSBL should authenticate image only if
@@ -226,6 +226,9 @@
 * 25.1   prt 02/06/25   Updated SDK release year and SDK release quarter
 *        pre 05/08/25   Added header version in boot header
 * 25.2   aa  06/19/25   Updated SDK release version
+* 26.1   aa  03/11/25   Updated SDK release version
+* 26.2   am  06/24/26   Updated SDK release version
+* 26.3   sd  09/21/26   Add IMAGE_WORD_SIZE macro for header reads
 *
 * </pre>
 *
@@ -327,7 +330,7 @@ extern "C" {
 /*
  * SDK release version
  */
-#define SDK_RELEASE_YEAR	2025
+#define SDK_RELEASE_YEAR	2026
 #define SDK_RELEASE_QUARTER	2
 
 #define WORD_LENGTH_SHIFT	2
@@ -500,6 +503,7 @@ extern "C" {
 #define SlcrLock()		Xil_Out32(XPS_SYS_CTRL_BASEADDR + 0x04, 0x767B767B)
 
 #define IMAGE_HEADER_CHECKSUM_COUNT 10
+#define IMAGE_WORD_SIZE 4U	/**< Header read word size in bytes */
 
 /* Boot ROM Image defines */
 #define IMAGE_WIDTH_CHECK_OFFSET        (0x020)	/**< 0xaa995566 Width Detection word */

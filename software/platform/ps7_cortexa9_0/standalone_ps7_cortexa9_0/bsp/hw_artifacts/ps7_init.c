@@ -292,14 +292,14 @@ unsigned long ps7_clock_init_data_3_0[] = {
     // .. .. SRCSEL = 0x0
     // .. .. ==> 0XF8000170[5:4] = 0x00000000U
     // .. ..     ==> MASK : 0x00000030U    VAL : 0x00000000U
-    // .. .. DIVISOR0 = 0x6
-    // .. .. ==> 0XF8000170[13:8] = 0x00000006U
-    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000600U
-    // .. .. DIVISOR1 = 0x6
-    // .. .. ==> 0XF8000170[25:20] = 0x00000006U
-    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00600000U
+    // .. .. DIVISOR0 = 0x4
+    // .. .. ==> 0XF8000170[13:8] = 0x00000004U
+    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000400U
+    // .. .. DIVISOR1 = 0x3
+    // .. .. ==> 0XF8000170[25:20] = 0x00000003U
+    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00300000U
     // .. .. 
-    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00600600U),
+    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00300400U),
     // .. .. CLK_621_TRUE = 0x1
     // .. .. ==> 0XF80001C4[0:0] = 0x00000001U
     // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
@@ -2261,6 +2261,16 @@ unsigned long ps7_post_config_3_0[] = {
     // .. FINISH: FPGA RESETS TO 0
     // .. START: AFI REGISTERS
     // .. .. START: AFI0 REGISTERS
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008000[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008000, 0x00000001U ,0x00000001U),
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008014[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008014, 0x00000001U ,0x00000001U),
     // .. .. FINISH: AFI0 REGISTERS
     // .. .. START: AFI1 REGISTERS
     // .. .. FINISH: AFI1 REGISTERS
@@ -2595,14 +2605,14 @@ unsigned long ps7_clock_init_data_2_0[] = {
     // .. .. SRCSEL = 0x0
     // .. .. ==> 0XF8000170[5:4] = 0x00000000U
     // .. ..     ==> MASK : 0x00000030U    VAL : 0x00000000U
-    // .. .. DIVISOR0 = 0x6
-    // .. .. ==> 0XF8000170[13:8] = 0x00000006U
-    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000600U
-    // .. .. DIVISOR1 = 0x6
-    // .. .. ==> 0XF8000170[25:20] = 0x00000006U
-    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00600000U
+    // .. .. DIVISOR0 = 0x4
+    // .. .. ==> 0XF8000170[13:8] = 0x00000004U
+    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000400U
+    // .. .. DIVISOR1 = 0x3
+    // .. .. ==> 0XF8000170[25:20] = 0x00000003U
+    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00300000U
     // .. .. 
-    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00600600U),
+    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00300400U),
     // .. .. CLK_621_TRUE = 0x1
     // .. .. ==> 0XF80001C4[0:0] = 0x00000001U
     // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
@@ -4719,6 +4729,16 @@ unsigned long ps7_post_config_2_0[] = {
     // .. FINISH: FPGA RESETS TO 0
     // .. START: AFI REGISTERS
     // .. .. START: AFI0 REGISTERS
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008000[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008000, 0x00000001U ,0x00000001U),
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008014[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008014, 0x00000001U ,0x00000001U),
     // .. .. FINISH: AFI0 REGISTERS
     // .. .. START: AFI1 REGISTERS
     // .. .. FINISH: AFI1 REGISTERS
@@ -5051,14 +5071,14 @@ unsigned long ps7_clock_init_data_1_0[] = {
     // .. .. SRCSEL = 0x0
     // .. .. ==> 0XF8000170[5:4] = 0x00000000U
     // .. ..     ==> MASK : 0x00000030U    VAL : 0x00000000U
-    // .. .. DIVISOR0 = 0x6
-    // .. .. ==> 0XF8000170[13:8] = 0x00000006U
-    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000600U
-    // .. .. DIVISOR1 = 0x6
-    // .. .. ==> 0XF8000170[25:20] = 0x00000006U
-    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00600000U
+    // .. .. DIVISOR0 = 0x4
+    // .. .. ==> 0XF8000170[13:8] = 0x00000004U
+    // .. ..     ==> MASK : 0x00003F00U    VAL : 0x00000400U
+    // .. .. DIVISOR1 = 0x3
+    // .. .. ==> 0XF8000170[25:20] = 0x00000003U
+    // .. ..     ==> MASK : 0x03F00000U    VAL : 0x00300000U
     // .. .. 
-    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00600600U),
+    EMIT_MASKWRITE(0XF8000170, 0x03F03F30U ,0x00300400U),
     // .. .. CLK_621_TRUE = 0x1
     // .. .. ==> 0XF80001C4[0:0] = 0x00000001U
     // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
@@ -7108,6 +7128,16 @@ unsigned long ps7_post_config_1_0[] = {
     // .. FINISH: FPGA RESETS TO 0
     // .. START: AFI REGISTERS
     // .. .. START: AFI0 REGISTERS
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008000[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008000, 0x00000001U ,0x00000001U),
+    // .. .. n32BitEn = 1
+    // .. .. ==> 0XF8008014[0:0] = 0x00000001U
+    // .. ..     ==> MASK : 0x00000001U    VAL : 0x00000001U
+    // .. .. 
+    EMIT_MASKWRITE(0XF8008014, 0x00000001U ,0x00000001U),
     // .. .. FINISH: AFI0 REGISTERS
     // .. .. START: AFI1 REGISTERS
     // .. .. FINISH: AFI1 REGISTERS

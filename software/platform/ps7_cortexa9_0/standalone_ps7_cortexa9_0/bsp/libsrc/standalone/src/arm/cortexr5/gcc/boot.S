@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2014 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (c) 2022 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 /*****************************************************************************/
@@ -76,6 +76,14 @@
 * 9.0  mus  08/01/23  Enable low latency peripheral port for CortexR52.
 * 9.1  mus  04/19/24  Add support for lockstep_mode_debug handling in SDT flow
 * 9.4  vmt  15/07/25  Add support to clear FPU registers D16–D31 for Cortex-R52
+* 9.5  asa  03/18/26  Replace BFI with UBFX for CPSR mode check to fix
+*                     non-deterministic HYP mode detection.
+* 9.5  asa  03/31/26  Moved TCM region initialization earlier in the boot sequence,
+*		      before stack pointer configuration, to prevent speculative
+*		      access.
+* 9.5  vmt  05/20/26  Unified Cortex-R52 armclang and GCC startup
+*                     assembly sources to support armclang integrated
+*                     assembler.
 * </pre>
 *
 ******************************************************************************/
@@ -85,15 +93,13 @@
 #include "bspconfig.h"
 #endif
 
+.eabi_attribute Tag_ABI_align_needed, 1
+.eabi_attribute Tag_ABI_align_preserved, 1
 
 .global _prestart
+.type _prestart, %function
 .global _boot
-.global __stack
-.global __irq_stack
-.global __supervisor_stack
-.global __abort_stack
-.global __fiq_stack
-.global __undef_stack
+.type _boot, %function
 .global _vector_table
 
 #if defined (ARMR52)
@@ -102,6 +108,31 @@
 .global _TCM_C_REGION
 #endif
 
+#if defined(__clang__)
+/*
+ * armlink scatter-load symbols
+ */
+.extern Image$$ARM_LIB_STACK$$ZI$$Base
+.extern Image$$ARM_IRQ_STACK$$ZI$$Limit
+.extern Image$$ARM_SV_STACK$$ZI$$Limit
+.extern Image$$ARM_ABORT_STACK$$ZI$$Limit
+.extern Image$$ARM_FIQ_STACK$$ZI$$Limit
+.extern Image$$ARM_UNDEF_STACK$$ZI$$Limit
+
+.set SYS_stack,		Image$$ARM_LIB_STACK$$ZI$$Base
+.set IRQ_stack,		Image$$ARM_IRQ_STACK$$ZI$$Limit
+.set SPV_stack,		Image$$ARM_SV_STACK$$ZI$$Limit
+.set Abort_stack,	Image$$ARM_ABORT_STACK$$ZI$$Limit
+.set FIQ_stack,		Image$$ARM_FIQ_STACK$$ZI$$Limit
+.set Undef_stack,	Image$$ARM_UNDEF_STACK$$ZI$$Limit
+#else
+.global __stack
+.global __irq_stack
+.global __supervisor_stack
+.global __abort_stack
+.global __fiq_stack
+.global __undef_stack
+
 /* Stack Pointer locations for boot code */
 .set Undef_stack,	__undef_stack
 .set FIQ_stack,		__fiq_stack
@@ -109,6 +140,7 @@
 .set SPV_stack,		__supervisor_stack
 .set IRQ_stack,		__irq_stack
 .set SYS_stack,		__stack
+#endif
 
 .set vector_base,	_vector_table
 
@@ -144,7 +176,11 @@
 #endif
 #endif
 
+#if defined(__clang__)
+.section .boot,"ax"
+#else
 .section .boot,"axS"
+#endif
 
 /* this initializes the various processor modes */
 
@@ -153,8 +189,39 @@ _boot:
 
 OKToRun:
 #if defined (ARMR52)
+
+	/* Disable interrupts */
+        cpsid   if
+
+        /*  Enable TCM  */
+        ldr r0, =_TCM_A_REGION
+        ldr r1, [r0]
+        tst r1, #0x1
+        beq InitTCMB
+        mcr p15, 0, r1, c9, c1, 0        /* Write r1 to IMP_ATCMREGIONR */
+        isb
+
+InitTCMB:
+
+        ldr r0, =_TCM_B_REGION
+        ldr r1, [r0]
+        tst r1, #0x1
+        beq InitTCMC
+        mcr p15, 0, r1, c9, c1, 1        /* Write r1 to IMP_BTCMREGIONR */
+        isb
+
+InitTCMC:
+
+        ldr r0, =_TCM_C_REGION
+        ldr r1, [r0]
+        tst r1, #0x1
+        beq InitTCMDone
+        mcr p15, 0, r1, c9, c1, 2       /* Write r1 to IMP_CTCMREGIONR */
+        isb
+InitTCMDone:
+
 	mrs r0, cpsr
-	bfi r1, r0, #0, #5
+	ubfx r1, r0, #0, #5
 	cmp r1, #0x1A         /* Check if it is HYP mode */
 	bne InitEL1
 
@@ -184,7 +251,7 @@ OKToRun:
 	ldr	r1,=XCortexr52_ConfigTable
 	ldr     r0,[r1]
 #endif
-    mcr     15,0,r0,c14,c0,0        /* Write CNTFRQ */
+    mcr     p15,0,r0,c14,c0,0        /* Write CNTFRQ */
 
 /* Change EL1 exception base address */
     ldr r0, =_vector_table
@@ -332,27 +399,6 @@ InitEL1:
 	bic r0, r0, #(0x1 << 0)				/* disable TCM and L1 cache ECC */
 	mcr p15, 1, r0, c9, c1, 2			/* Write IMP_MEMPROTCTLR */
 
-/* Enable TCM */
-	ldr r0, =_TCM_A_REGION
-	ldr r1, [r0]
-	tst r1, #0x1
-	beq InitTCMB
-	mcr p15, 0, r1, c9, c1, 0  /* Write r1 to IMP_ATCMREGIONR */
-
-InitTCMB:
-	ldr r0, =_TCM_B_REGION
-	ldr r1, [r0]
-	tst r1, #0x1
-	beq InitTCMC
-	mcr p15, 0, r1, c9, c1, 1  /* Write r1 to IMP_BTCMREGIONR */
-
-InitTCMC:
-	ldr r0, =_TCM_C_REGION
-	ldr r1, [r0]
-	tst r1, #0x1
-	beq InitTCMDone
-	mcr p15, 0, r1, c9, c1, 2  /* Write r1 to IMP_CTCMREGIONR */
-InitTCMDone:
 	mrc     p15, 0, r1, c15, c0, 0   /* Read IMP_PERIPHPREGIONR */
 	orr     r1, r1, #(0x3)           /* Enable peripheral port at EL2 and EL1 and EL0 */
 	mcr     p15, 0, r1, c15, c0, 0   /* Write IMP_PERIPHPREGIONR */
