@@ -1,18 +1,15 @@
 /******************************************************************************
 * Copyright (C) 2010 - 2021 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2023 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
-/****************************************************************************/
+/*****************************************************************************/
 /**
 *
 * @file xuartps_sinit.c
-* @addtogroup uartps Overview
-* @{
 *
-* The implementation of the XUartPs driver's static initialization
-* functionality.
+* @brief Implements the static initialization for the XUartPs driver.
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -21,9 +18,17 @@
 * ----- ------ -------- -----------------------------------------------
 * 1.00  drg/jz 01/13/10 First Release
 * 3.00  kvn    02/13/15 Modified code for MISRA-C:2012 compliance.
+* 3.18  vlt    12/18/25 Update Doxygen comments to include SDT flow details.
+* 3.18  vlt    03/14/26 Updated BaseAddress type from u32 to UINTPTR
+*                       to support 64-bit addressing.
+* 3.19  vn   09/10/26 Align Doxygen comments with AMD standards
 * </pre>
 *
-*****************************************************************************/
+******************************************************************************/
+
+/** @addtogroup uartps Overview
+ * @{
+ */
 
 /***************************** Include Files ********************************/
 
@@ -40,6 +45,9 @@
 /***************** Macros (Inline Functions) Definitions ********************/
 
 /************************** Variable Definitions ****************************/
+/**
+ * @brief Holds the configuration entry for each UartPs instance.
+ */
 #ifndef SDT
 extern XUartPs_Config XUartPs_ConfigTable[XPAR_XUARTPS_NUM_INSTANCES];
 #else
@@ -49,18 +57,27 @@ extern XUartPs_Config XUartPs_ConfigTable[];
 
 /************************** Function Prototypes *****************************/
 
-/****************************************************************************/
+/*****************************************************************************/
 /**
 *
-* Looks up the device configuration based on the unique device ID. The table
-* contains the configuration info for each device in the system.
+* @brief Looks up the device configuration based on the unique device ID or
+* base address.
 *
-* @param	DeviceId contains the ID of the device
+* The XUartPs_ConfigTable[] contains the configuration info for each device
+* in the system.
 *
-* @return	A pointer to the configuration structure or NULL if the
-*		specified device is not in the system.
+* @if SDT
+* @param[in]   BaseAddress Base address of the device.
+* @else
+* @param[in]   DeviceId Unique ID of the device.
+* @endif
 *
-* @note		None.
+* @return      A pointer to the configuration found or NULL if the specified
+*              device ID/BaseAddress was not found. See xuartps.h for the
+*              definition of XUartPs_Config.
+*
+* @note        In XSCT/classic flow, DeviceId is used to look up the device
+*              configuration.
 *
 ******************************************************************************/
 #ifndef SDT
@@ -80,7 +97,7 @@ XUartPs_Config *XUartPs_LookupConfig(u16 DeviceId)
 	return (XUartPs_Config *)CfgPtr;
 }
 #else
-XUartPs_Config *XUartPs_LookupConfig(u32 BaseAddress)
+XUartPs_Config *XUartPs_LookupConfig(UINTPTR BaseAddress)
 {
 	XUartPs_Config *CfgPtr = NULL;
 	u32 Index;

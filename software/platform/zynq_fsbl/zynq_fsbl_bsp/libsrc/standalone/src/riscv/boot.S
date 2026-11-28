@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright (c) 2023 - 2024 Advanced Micro Devices, Inc. All rights reserved.
+* Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 /*****************************************************************************/
@@ -18,9 +18,11 @@
 * 2. Initialize processor registers to 0
 * 3. Program stack pointer
 * 4. Initialize floating-point registers to +0.0
-* 5. Set the stack top to zero, to ensure that main program argc is zero
-* 6. Transfer control to _start, which clears BSS sections and jumps to
-*    the main application
+ * 5. Set the stack top to zero, to ensure that main program argc is zero
+ * 6. Clear .sbss before C runtime so small BSS is zero even if crt0 only
+ *    covers __bss_start..__bss_end (separate .sbss sections in memory)
+ * 7. Transfer control to _start, which clears BSS sections and jumps to
+ *    the main application
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -37,26 +39,45 @@
 *                     boot code. It will be reverted once triggering of
 *                     constructor is fixed.
 * 9.1  mus   25/03/24 Use correct macro for checking FPU enablement.
+* 9.1  ss    01/04/26 Add gp reg initialization and disable interrupts on boot.
+* 9.1  ss    04/27/26 Clear .sbss in boot before _start (crt0 may omit it).
+* 9.2  ss    09/22/26 Enable mstatus.FS before FP init; use XLEN-aware
+*                     fmv.d.x (RV64D) / fcvt.d.w (RV32D) for double init.
 * </pre>
 *
 ******************************************************************************/
 
 #include "xparameters.h"
 
+/* RV32E has no F/D extension support; FPU must not be enabled for it */
+#if defined(__riscv_32e) && defined(XPAR_MICROBLAZE_RISCV_USE_FPU) && \
+    (XPAR_MICROBLAZE_RISCV_USE_FPU > 0)
+#error "XPAR_MICROBLAZE_RISCV_USE_FPU must be 0 for an RV32E processor; RV32E does not support the F/D floating-point extension"
+#endif
+
 .global _boot
 .global __stack
+.global __global_pointer$
 
 .section .text.init,"ax"
 
 _boot:
 
+#ifndef RISCV_USER_APP
+/* Disable Machine interrupts globally */
+	li t0, 0x8  /* MIE bit is 1<<3 */
+	csrc mstatus, t0
+
+/* Disable all individual interrupt enables */
+	csrw mie, zero
+
 /* FIXME: Initialize mtvec CSR to _trap_handler */
 	la	t0, _trap_handler
 	csrw	mtvec, t0
+#endif /* RISCV_USER_APP */
 
 /* Initialize processor registers to 0 */
 	addi	x1,x0,0
-	addi	x3,x0,0
 	addi	x4,x0,0
 	addi	x5,x0,0
 	addi	x6,x0,0
@@ -69,6 +90,7 @@ _boot:
 	addi	x13,x0,0
 	addi	x14,x0,0
 	addi	x15,x0,0
+#ifndef __riscv_32e
 	addi	x16,x0,0
 	addi	x17,x0,0
 	addi	x18,x0,0
@@ -85,6 +107,13 @@ _boot:
 	addi	x29,x0,0
 	addi	x30,x0,0
 	addi	x31,x0,0
+#endif
+
+/* Initialize global pointer reg */
+	.option push
+	.option norelax
+	la	gp, __global_pointer$
+	.option pop
 
 /* Initialize stack pointer */
 	.option push
@@ -92,8 +121,39 @@ _boot:
 	la	sp, __stack
 	.option pop
 
-/* Clear the floating point registers */
+/* Clear small BSS; linker provides __sbss_start/__sbss_end (empty equals). */
+	.option push
+	.option norelax
+	la	t0, __sbss_start
+	la	t1, __sbss_end
+	.option pop
+	beq	t0, t1, .Lsbss_done
+.Lsbss_loop:
+	sw	zero, 0(t0)
+	addi	t0, t0, 4
+	bltu	t0, t1, .Lsbss_loop
+.Lsbss_done:
+
+/*
+ * M-mode only: enable FS in mstatus. RISCV_USER_APP guests cannot write mstatus;
+ * the monitor must set FS before mret (see mode_switch_enter.S). FPR clear below
+ * runs in M-mode or U-mode (fcvt/fmv only) when FPU is enabled.
+ */
+#ifndef RISCV_USER_APP
+#if defined(XPAR_MICROBLAZE_RISCV_USE_FPU) && (XPAR_MICROBLAZE_RISCV_USE_FPU > 0)
+	li	t0, 0x2000
+	csrs	mstatus, t0
+#endif
+#endif /* !RISCV_USER_APP */
+
+/*
+ * Clear FP registers to +0.0. Only use instructions that match the build:
+ *   FPU=1 — fmv.w.x (single precision; no D extension in -march)
+ *   FPU=2, RV64 — fmv.d.x
+ *   FPU=2, RV32 — fcvt.d.w (double +0.0; fmv.w.x only NaN-boxes 32-bit zero)
+ */
 #if defined(XPAR_MICROBLAZE_RISCV_USE_FPU) && (XPAR_MICROBLAZE_RISCV_USE_FPU == 2)
+#if __riscv_xlen == 64
 	fmv.d.x	f0, x0
 	fmv.d.x	f1, x0
 	fmv.d.x	f2, x0
@@ -126,6 +186,40 @@ _boot:
 	fmv.d.x	f29, x0
 	fmv.d.x	f30, x0
 	fmv.d.x	f31, x0
+#else
+	fcvt.d.w f0, x0
+	fcvt.d.w f1, x0
+	fcvt.d.w f2, x0
+	fcvt.d.w f3, x0
+	fcvt.d.w f4, x0
+	fcvt.d.w f5, x0
+	fcvt.d.w f6, x0
+	fcvt.d.w f7, x0
+	fcvt.d.w f8, x0
+	fcvt.d.w f9, x0
+	fcvt.d.w f10, x0
+	fcvt.d.w f11, x0
+	fcvt.d.w f12, x0
+	fcvt.d.w f13, x0
+	fcvt.d.w f14, x0
+	fcvt.d.w f15, x0
+	fcvt.d.w f16, x0
+	fcvt.d.w f17, x0
+	fcvt.d.w f18, x0
+	fcvt.d.w f19, x0
+	fcvt.d.w f20, x0
+	fcvt.d.w f21, x0
+	fcvt.d.w f22, x0
+	fcvt.d.w f23, x0
+	fcvt.d.w f24, x0
+	fcvt.d.w f25, x0
+	fcvt.d.w f26, x0
+	fcvt.d.w f27, x0
+	fcvt.d.w f28, x0
+	fcvt.d.w f29, x0
+	fcvt.d.w f30, x0
+	fcvt.d.w f31, x0
+#endif
 #endif
 #if defined(XPAR_MICROBLAZE_RISCV_USE_FPU) && (XPAR_MICROBLAZE_RISCV_USE_FPU == 1)
 	fmv.w.x	f0, x0
@@ -161,6 +255,7 @@ _boot:
 	fmv.w.x	f30, x0
 	fmv.w.x	f31, x0
 #endif
+
 	sw	zero,0(sp)	/* Initialize argc to zero */
 	j 	_start		/* jump to C startup code */
 

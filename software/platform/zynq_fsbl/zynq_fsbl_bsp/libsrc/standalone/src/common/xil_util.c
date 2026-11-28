@@ -1,7 +1,7 @@
 /******************************************************************************/
 /**
 * Copyright (C) 2019 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2025 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -95,6 +95,8 @@
 *       pre      08/29/24 Fixed compilation warning
 *       kpt      10/17/24 Move API's used in secure libs to xil_sutil.c
 * 9.4   ml       07/24/25 Fixed GCC warnings
+* 9.5   hj       30/01/26 Remove zero address check from all API's
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 *****************************************************************************/
@@ -114,7 +116,7 @@
 /**
 * This API ceils the provided float value.
 *
-* @param	Value is a float variable which has to ceiled to nearest
+* @param[in]	Value is a float variable which has to ceiled to nearest
 *		integer.
 *
 * @return	Returns ceiled value.
@@ -135,29 +137,24 @@ s32 Xil_Ceil(float Value)
 /**
  * Checks whether the passed character is a valid hex digit
  *
- * @param   Ch - Pointer to the input character
+ * @param[in]   Ch - Pointer to the input character
  *
  * @return
  *          XST_SUCCESS	- on valid hex digit
  *          XST_FAILURE - on invalid hex digit
  *
- * @note    None.
- *
+
  ******************************************************************************/
 u32 Xil_IsValidHexChar(const char *Ch)
 {
 	u32 Status = XST_FAILURE;
 
-	if (NULL == Ch) {
-		goto END;
-	}
 	if (((*Ch >= '0') && (*Ch <= '9')) ||
 	    ((*Ch >= 'a') && (*Ch <= 'f')) ||
 	    ((*Ch >= 'A') && (*Ch <= 'F'))) {
 
 		Status = XST_SUCCESS;
 	}
-END:
 	return Status;
 }
 
@@ -165,25 +162,20 @@ END:
 /**
  * Validate the input string contains only hexadecimal characters
  *
- * @param   HexStr - Pointer to string to be validated
+ * @param[in]   HexStr - Pointer to string to be validated
  *
  * @return
  *          XST_SUCCESS	- On valid input hex string
  *          XST_INVALID_PARAM - On invalid length of the input string
  *          XST_FAILURE	- On non hexadecimal character in string
  *
- * @note    None
- *
+
  ******************************************************************************/
 u32 Xil_ValidateHexStr(const char *HexStr)
 {
 	u32 Idx;
 	u32 Len;
 	u32 Status = XST_INVALID_PARAM;
-
-	if (NULL == HexStr) {
-		goto END;
-	}
 
 	Len = Xil_Strnlen(HexStr, XIL_MAX_HEX_STR_LEN + 1U);
 	if (Len > XIL_MAX_HEX_STR_LEN) {
@@ -206,30 +198,16 @@ END:
  * Converts the string into the equivalent Hex buffer.
  *	Ex: "abc123" -> {0xab, 0xc1, 0x23}
  *
- * @param	Str is a Input String. Will support the lower and upper case values.
+ * @param[in]	Str is a Input String. Will support the lower and upper case values.
  * 		Value should be between 0-9, a-f and A-F
- * @param	Buf is Output buffer.
- * @param	Len of the input string. Should have even values
+ * @param[in]	Buf is Output buffer.
+ * @param[in]	Len of the input string. Should have even values
  *
  * @return
  * 		- XST_SUCCESS no errors occurred.
  *		- XST_FAILURE an error when input parameters are not valid
  *		- an error when input buffer has invalid values
  *
- *	TDD Test Cases:
- *	---Initialization---
- *	Len is odd
- *	Len is zero
- *	Str is NULL
- *	Buf is NULL
- *	---Functionality---
- *	Str input with only numbers
- *	Str input with All values in A-F
- *	Str input with All values in a-f
- *	Str input with values in a-f, 0-9, A-F
- *	Str input with values in a-z, 0-9, A-Z
- *	Boundary Cases
- *	Memory Bounds of buffer checking
  * ****************************************************************************/
 u32 Xil_ConvertStringToHexBE(const char *Str, u8 *Buf, u32 Len)
 {
@@ -237,11 +215,6 @@ u32 Xil_ConvertStringToHexBE(const char *Str, u8 *Buf, u32 Len)
 	u8 LowerNibble = 0U;
 	u8 UpperNibble = 0U;
 	u32 Status = (u32)XST_FAILURE;
-
-	if ((Str == NULL) || (Buf == NULL)) {
-		Status = (u32)XST_INVALID_PARAM;
-		goto END;
-	}
 
 	if ((Len == 0U) || ((Len % XIL_SIZE_OF_BYTE_IN_BITS) != 0U)) {
 		Status = (u32)XST_INVALID_PARAM;
@@ -277,12 +250,12 @@ END:
  * Converts the string into the equivalent Hex buffer.
  *	Ex: "abc123" -> {0x23, 0xc1, 0xab}
  *
- * @param   Str - Input String to be converted to hex number in little
- *                endian format. Valid characters of input strin are between
+ * @param[in]   Str - Input String to be converted to hex number in little
+ *                endian format. Valid characters of input string are between
  *                0-9, a-f and A-F
- * @param   Buf - Pointer to memory location where converted hex numbers are to
+ * @param[in]   Buf - Pointer to memory location where converted hex numbers are to
  *                be stored.
- * @param   Len - Expected number of output bits
+ * @param[in]   Len - Expected number of output bits
  *
  * @return
  *          XST_SUCCESS - Input string is converted to hex number(s)
@@ -298,11 +271,6 @@ u32 Xil_ConvertStringToHexLE(const char *Str, u8 *Buf, u32 Len)
 	u8 UpperNibble = 0U;
 	u32 StrIndex;
 	u32 Status = XST_FAILURE;
-
-	if ((NULL == Str) || (NULL == Buf)) {
-		Status = XST_INVALID_PARAM;
-		goto END;
-	}
 
 	if ((Len == 0U) || ((Len % XIL_SIZE_OF_BYTE_IN_BITS) != 0U)) {
 		Status = XST_INVALID_PARAM;
@@ -341,8 +309,8 @@ END:
 /**
  * Returns the length of input string.
  *
- * @param   Str - Input string
- * @param   MaxLen - Maximum expected length of the input string
+ * @param[in]   Str - Input string
+ * @param[in]   MaxLen - Maximum expected length of the input string
  *
  * @return
  *          Returns length of the input string if length is less than MaxLen.
@@ -356,10 +324,6 @@ u32 Xil_Strnlen(const char *Str, u32 MaxLen)
 	const char *InStr = Str;
 	u32 StrLen = 0U;
 
-	if (NULL == Str) {
-		goto END;
-	}
-
 	while (StrLen < MaxLen) {
 		if ('\0' == *InStr) {
 			break;
@@ -368,7 +332,6 @@ u32 Xil_Strnlen(const char *Str, u32 MaxLen)
 		InStr++;
 	}
 
-END:
 	return StrLen;
 }
 
@@ -377,9 +340,9 @@ END:
  * @brief	This functions copies source string to destination string. This
  * 			function is a safe version of strcpy
  *
- * @param	DestPtr is pointer to destination string
- * @param	SrcPtr is pointer to source string
- * @param	Size is the maximum number of bytes of the source string
+ * @param[in]	DestPtr is pointer to destination string
+ * @param[in]	SrcPtr is pointer to source string
+ * @param[in]	Size is the maximum number of bytes of the source string
  *			to be copied
  *
  * @return	XST_SUCCESS on success and error code on failure
@@ -390,7 +353,7 @@ s32 Xil_Strcpy(char *DestPtr, const char *SrcPtr, const u32 Size)
 	int Status = XST_FAILURE;
 	u32 Count;
 
-	if ((SrcPtr == NULL) || (DestPtr == NULL) || (Size == 0U)) {
+	if (Size == 0U) {
 		goto END;
 	}
 
@@ -412,18 +375,17 @@ END:
 /**
  * @brief	Copies specified range from source string to destination string
  *
- * @param	Src  is a pointer to source string
- * @param	Dest  is a pointer to destination string
- * @param	From is 0 based index from where string copy starts
- * @param	To   is 0 based index till which string is copied
- * @param	MaxSrcLen is the maximum length of source string
- * @param	MaxDstLen is the maximum length of destination string
+ * @param[in]	Src  is a pointer to source string
+ * @param[in]	Dest  is a pointer to destination string
+ * @param[in]	From is 0 based index from where string copy starts
+ * @param[in]	To   is 0 based index till which string is copied
+ * @param[in]	MaxSrcLen is the maximum length of source string
+ * @param[in]	MaxDstLen is the maximum length of destination string
  *
  * @return	XST_SUCCESS on success
  * 		XST_FAILURE on failure
  *
- * @note	None
- *
+
  ****************************************************************************/
 s32 Xil_StrCpyRange(const u8 *Src, u8 *Dest, u32 From, u32 To, u32 MaxSrcLen,
 		    u32 MaxDstLen)
@@ -431,11 +393,6 @@ s32 Xil_StrCpyRange(const u8 *Src, u8 *Dest, u32 From, u32 To, u32 MaxSrcLen,
 	int Status = XST_FAILURE;
 	u32 SrcLength;
 	u32 Index;
-
-	if ((Src == NULL) || (Dest == NULL)) {
-		Status = XST_INVALID_PARAM;
-		goto END;
-	}
 
 	if ((To >= MaxSrcLen) || (To < From)) {
 		Status = XST_INVALID_PARAM;
@@ -469,9 +426,9 @@ END:
  * @brief	This function appends string2 to string1. This function is a safe
  * 			version of strcat
  *
- * @param	Str1Ptr is pointer to string1
- * @param	Str2Ptr is pointer to string2
- * @param	Size is the maximum number of bytes Str1 can hold
+ * @param[in]	Str1Ptr is pointer to string1
+ * @param[in]	Str2Ptr is pointer to string2
+ * @param[in]	Size is the maximum number of bytes Str1 can hold
  *
  * @return	XST_SUCCESS on success and error code on failure
  *
@@ -482,7 +439,7 @@ s32 Xil_Strcat(char *Str1Ptr, const char *Str2Ptr, const u32 Size)
 	u32 Count = 0U;
 	u32 CountTmp = 0U;
 
-	if ((Str1Ptr == NULL) || (Str2Ptr == NULL) || (Size == 0U)) {
+	if (Size == 0U) {
 		goto END;
 	}
 
@@ -511,9 +468,9 @@ END:
  * @brief	This function compares Len bytes from memory1 and memory2. This
  * 			function is a secure implementation of memcmp
  *
- * @param	Buf1Ptr is pointer to memory1
- * @param	Buf2Ptr is pointer to memory2
- * @param	Len is number of byets to be compared
+ * @param[in]	Buf1Ptr is pointer to memory1
+ * @param[in]	Buf2Ptr is pointer to memory2
+ * @param[in]	Len is number of byets to be compared
  *
  * @return	0 if contents of both the memory regions are same,
  * 			-1 if first non-matching character has lower value in Buf1Ptr
@@ -528,7 +485,7 @@ s32 Xil_MemCmp(const void *Buf1Ptr, const void *Buf2Ptr, u32 Len)
 	u32 Size = Len;
 
 	/* Assert validates the input arguments */
-	if ((Buf1 == NULL) || (Buf2 == NULL) || (Len == 0x0U)) {
+	if (Len == 0x0U) {
 		goto END;
 	}
 

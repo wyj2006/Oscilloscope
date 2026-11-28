@@ -1,6 +1,6 @@
 #include "xscugic.h"
 
-XScuGic_Config XScuGic_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XScuGic_Config XScuGic_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"arm,cortex-a9-gic", /* compatible */

@@ -1,15 +1,14 @@
 /******************************************************************************/
 /**
-* Copyright (C) 2024 - 2025 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2024 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
 /****************************************************************************/
 /**
 * @file xil_sutil.h
+*
 * @addtogroup common_utilities Common Utility APIs
-* @{
-* @details
 *
 * xil_sutil.h file contains xil utility functions declarations
 * Except few functions, most of these functions are wrappers to standard functions.
@@ -21,6 +20,7 @@
 * like password, keys which prevent disclosing of the data using
 * timing analysis.
 *
+* @{
 * <pre>
 * MODIFICATION HISTORY:
 *
@@ -30,7 +30,10 @@
 * 9.3   ml       02/19/25 Fix Type Mismatch in Xil_UtilRMW32
 * 9.4   ml       07/24/25 Fixed GCC warnings
 *       har      10/10/25 Updated datatype of Len in Xil_ConvertStringToHex
+* 9.5   abh      10/11/25 Fixed MISRA-C violations
+*       rmv      04/08/26 Added XIL_SCEILDIV macro
 *
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 *****************************************************************************/
@@ -56,13 +59,13 @@ extern "C" {
  *
  * Builds version number by concatenates 16-bit Major version and Minor version.
  *
- * @param   Major is the 16-bit major version number
- * @param   Minor is the 16-bit minor version number
+ * @param[in] Major is the 16-bit major version number
+ * @param[in] Minor is the 16-bit minor version number
  *
  * @return	32-bit version number
  *
  ******************************************************************************/
-#define XIL_BUILD_VERSION(Major, Minor)		((((u32)Major) << 16U) | (Minor))
+#define XIL_BUILD_VERSION(Major, Minor)		((((u32)Major) << 16U) | ((u32)Minor))
 
 #ifdef __GNUC__
 /******************************************************************************/
@@ -72,21 +75,20 @@ extern "C" {
  * for redundancy. This is to avoid glitches from altering the return values of
  * security critical functions.
  *
- * @param   Var is the variable which holds the return value of function
+ * @param[in] Var is the variable which holds the return value of function
  *          executed
- * @param   VarTmp is the variable which holds the value stored in Var
- * @param	Function is the function to be executed
- * @param	Other params are arguments to the called function
+ * @param[in] VarTmp is the variable which holds the value stored in Var
+ * @param[in]	Function is the function to be executed
+ * @param[in]	Other params are arguments to the called function
  *
- * @return	None
- *
+
  ******************************************************************************/
 #define XSECURE_TEMPORAL_IMPL(Var, VarTmp, Function, ...) \
 	{ \
-		Var = XST_FAILURE; \
-		VarTmp = XST_FAILURE; \
-		Var = Function(__VA_ARGS__); \
-		VarTmp = Var; \
+		(Var) = XST_FAILURE; \
+		(VarTmp) = XST_FAILURE; \
+		(Var) = (Function(__VA_ARGS__)); \
+		(VarTmp) = (Var); \
 	}
 
 /******************************************************************************/
@@ -97,25 +99,24 @@ extern "C" {
  * critical functions. The macro requires a label to be passed to "go to"
  * in case of error.
  *
- * @param   Label is the label defined in function and the control
+ * @param[in] Label is the label defined in function and the control
  *          will jump to the label in case of XST_FAILURE
- * @param   Status is the variable which holds the return value of
+ * @param[in] Status is the variable which holds the return value of
  *          function executed
- * @param	Function is the function to be executed
- * @param	Other params are arguments to the called function
+ * @param[in]	Function is the function to be executed
+ * @param[in]	Other params are arguments to the called function
  *
- * @return	None
- *
+
  ******************************************************************************/
 #define XSECURE_TEMPORAL_CHECK(Label, Status, Function, ...)   \
 	{ \
 		volatile int StatusTmpVal; \
 		XSECURE_TEMPORAL_IMPL(Status, StatusTmpVal, Function, __VA_ARGS__); \
-		if ((Status != XST_SUCCESS) || \
-		    (StatusTmpVal != XST_SUCCESS)) { \
+		if (((Status) != XST_SUCCESS) || \
+		    ((StatusTmpVal) != XST_SUCCESS)) { \
 			if (((Status) != (StatusTmpVal)) || \
-			    (Status == XST_SUCCESS)) { \
-				Status = XST_GLITCH_ERROR; \
+			    ((Status) == XST_SUCCESS)) { \
+				(Status) = XST_GLITCH_ERROR; \
 			}\
 			goto Label; \
 		} \
@@ -128,20 +129,19 @@ extern "C" {
  * a function call and cause altering of the code flow in security critical
  * functions.
  *
- * @param	Status is the variable which holds the return value of
+ * @param[in]	Status is the variable which holds the return value of
  *		function executed
- * @param	StatusTmp is the variable which holds the return value of
+ * @param[in]	StatusTmp is the variable which holds the return value of
  *		redundant function call executed
- * @param	Function is the function to be executed
- * @param	Other params are arguments to the called function
+ * @param[in]	Function is the function to be executed
+ * @param[in]	Other params are arguments to the called function
  *
- * @return	None
- *
+
  ******************************************************************************/
 #define XSECURE_REDUNDANT_CALL(Status, StatusTmp, Function, ...)   \
 	{ \
-		Status = Function(__VA_ARGS__); \
-		StatusTmp = Function(__VA_ARGS__); \
+		(Status) = (Function(__VA_ARGS__)); \
+		(StatusTmp) = (Function(__VA_ARGS__)); \
 	}
 
 /******************************************************************************/
@@ -151,11 +151,10 @@ extern "C" {
  * a function call and cause altering of the code flow in security critical
  * functions.
  *
- * @param	Function is the function to be executed
- * @param	Other params are arguments to the called function
+ * @param[in]	Function is the function to be executed
+ * @param[in]	Other params are arguments to the called function
  *
- * @return	None
- *
+
  ******************************************************************************/
 #define XSECURE_REDUNDANT_IMPL(Function, ...)   \
 	{ \
@@ -169,20 +168,35 @@ extern "C" {
  * This Macro helps to detect glitches skipping the Status check
  * in case of error.
  *
- * @param 	None
+ * @param[in] None
  *
- * @return	None
- *
+
  ******************************************************************************/
 #define XSECURE_STATUS_CHK_GLITCH_DETECT(Status)   \
 	{ \
-		if (Status == XST_SUCCESS) { \
-			Status = (int)XST_GLITCH_ERROR; \
+		if ((Status) == XST_SUCCESS) { \
+			(Status) = (int)XST_GLITCH_ERROR; \
 		} \
 	}
 
 #endif
 /*************************** Function Prototypes ******************************/
+
+/******************************************************************************/
+/**
+ *
+ * Returns ceil value of (Numerator / Denominator) using the specified
+ * integer Type used for the computation. Denominator must not be zero.
+ *
+ * @param[in]	Type is the data type (for example u32, u64) used for the computation
+ * @param[in]	Numerator is the dividend
+ * @param[in]	Denominator is the divisor and must not be zero
+ *
+ * @return	Ceil value of (Numerator / Denominator)
+ *
+ ******************************************************************************/
+#define XIL_SCEILDIV(Type, Numerator, Denominator) \
+	(((Type)(Numerator) + (Type)(Denominator) - (Type)1) / (Type)(Denominator))
 
 /**< Converts input character to nibble */
 u32 Xil_ConvertCharToNibble(u8 InChar, u8 *Num);
@@ -266,6 +280,15 @@ s32 Xil_SReverseData(void *Buf, u32 Size);
 
 /**< Copies data from 64 bit address Src to 64 bit address Dst */
 void Xil_MemCpy64(u64 DstAddr, u64 SrcAddr, u32 Cnt);
+
+/**< Copies data from 64 bit source address to 32 bit destination address */
+void Xil_MemCpyFrom64To32Addr(u32 DstAddr, u64 SrcAddr, u32 Count);
+
+/**< Copies data from 32 bit source address to 64 bit destination address */
+void Xil_MemCpyFrom32To64Addr(u64 DstAddr, u32 SrcAddr, u32 Count);
+
+/**< Increments buffer data by specified value */
+void Xil_IncrementBuffer(u8* Buffer, u32 BufferSize, u8 IncVal);
 
 #ifdef __cplusplus
 }

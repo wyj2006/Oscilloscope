@@ -1,0 +1,29 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"1.72165",
+   "Default View_TopLeft":"-232,-437",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:24.0
+#  -string -flagsOSRD
+preplace port port-id_clk_100MHz -pg 1 -lvl 0 -x -20 -y -130 -defaultsOSRD
+preplace port port-id_reset_rtl_0 -pg 1 -lvl 0 -x -20 -y -360 -defaultsOSRD
+preplace inst axi_vip_0 -pg 1 -lvl 1 -x 120 -y -270 -defaultsOSRD
+preplace inst clk_wiz -pg 1 -lvl 1 -x 120 -y -140 -defaultsOSRD
+preplace inst rst_clk_wiz_100M -pg 1 -lvl 2 -x 400 -y -280 -defaultsOSRD
+preplace inst axi_smc -pg 1 -lvl 5 -x 800 -y -120 -defaultsOSRD
+preplace inst display_controller_0 -pg 1 -lvl 2 -x 400 -y -100 -defaultsOSRD
+preplace netloc clk_100MHz_1 1 0 1 NJ -130
+preplace netloc clk_wiz_clk_out1 1 0 5 20 -350 220 0 580 -120 N -120 NJ
+preplace netloc clk_wiz_locked 1 1 1 230 -240n
+preplace netloc reset_rtl_0_1 1 0 2 10 -360 230
+preplace netloc rst_clk_wiz_100M_peripheral_aresetn 1 0 5 30 -70 230 10 570 -100 N -100 NJ
+preplace netloc axi_smc_M00_AXI 1 0 6 30 -380 N -380 N -380 NJ -380 NJ -380 940
+preplace netloc display_controller_0_M_AXI 1 2 3 N -140 N -140 N
+levelinfo -pg 1 -20 120 400 600 640 800 960
+pagesize -pg 1 -db -bbox -sgen -150 -450 960 200
+"
+}
+{
+   "da_axi4_cnt":"1",
+   "da_board_cnt":"5"
+}

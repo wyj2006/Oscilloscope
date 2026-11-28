@@ -1,4 +1,4 @@
-# Copyright (c) 2022 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+# Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
 collect (PROJECT_LIB_SOURCES print.c)
@@ -36,6 +36,7 @@ collect (PROJECT_LIB_HEADERS xmem_config.h)
 collect (PROJECT_LIB_HEADERS xil_cryptoalginfo.h)
 collect (PROJECT_LIB_SOURCES xpm_init.c)
 collect (PROJECT_LIB_HEADERS xpm_init.h)
+collect (PROJECT_LIB_HEADERS xil_stdarg.h)
 
 if(("${CMAKE_MACHINE}" STREQUAL "Versal") OR
    ("${CMAKE_MACHINE}" STREQUAL "VersalNet") OR
@@ -81,7 +82,8 @@ if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "cortexa9")
 	collect (PROJECT_LIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../xcortexa9_g.c)
 endif()
 
-if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv")
+if(("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "microblaze_riscv") OR
+    ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "asu"))
 	collect (PROJECT_LIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../xmicroblaze_riscv_g.c)
 endif()
 

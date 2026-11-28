@@ -1,6 +1,6 @@
 #include "xscutimer.h"
 
-XScuTimer_Config XScuTimer_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XScuTimer_Config XScuTimer_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"arm,cortex-a9-twd-timer", /* compatible */

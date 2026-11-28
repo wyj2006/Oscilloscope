@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2010 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2022 - 2024 Advanced Micro Devices, Inc.  All rights reserved.
+* Copyright (C) 2022 - 2026 Advanced Micro Devices, Inc.  All rights reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -8,11 +8,8 @@
 /**
 *
 * @file xscuwdt_sinit.c
-* @addtogroup Overview
-* @{
 *
-* This file contains method for static initialization (compile-time) of the
-* driver.
+* @brief Implements static (compile-time) initialization of the XScuWdt driver.
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -24,9 +21,16 @@
 * 2.5   asa 07/18/23 Made updates to support system device tree based
 *                    workflow decoupling flow.
 * 2.6 	ht  06/03/24 Fix HIS_COMF violations.
+* 2.7   vlt 12/29/25 Update Doxygen comments to include SDT flow details.
+* 2.8   vn  09/30/26 Align Doxygen comments with AMD standards
+*
 * </pre>
 *
 ******************************************************************************/
+
+/** @addtogroup Overview
+ * @{
+ */
 
 /***************************** Include Files *********************************/
 
@@ -45,15 +49,24 @@
 
 /*****************************************************************************/
 /**
-* Lookup the device configuration based on the unique device ID. The table
-* contains the configuration info for each device in the system.
 *
-* @param	DeviceId is the unique device ID of the device being looked up.
+* @brief Looks up the device configuration by unique device ID or base address.
 *
-* @return	A pointer to the configuration table entry corresponding to the
-*		given device ID, or NULL if no match is found.
+* The XScuWdt_ConfigTable[] contains the configuration info for each device
+* in the system.
 *
-* @note		None.
+* @if SDT
+* @param[in]	BaseAddress Base address of the device.
+* @else
+* @param[in]	DeviceId Unique ID of the device.
+* @endif
+*
+* @return	A pointer to the configuration found, or NULL if the specified
+*		device ID or base address was not found. See xscuwdt.h
+*		for the definition of XScuWdt_Config.
+*
+* @note         In the XSCT/classic flow, the driver uses DeviceId to look up
+*		the device configuration.
 *
 ******************************************************************************/
 #ifndef SDT

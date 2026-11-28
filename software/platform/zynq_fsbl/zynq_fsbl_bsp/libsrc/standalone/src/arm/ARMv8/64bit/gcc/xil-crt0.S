@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2014 - 2022 Xilinx, Inc.  All rights reserved.
-* Copyright (c) 2023 - 2025 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 /*****************************************************************************/
@@ -37,6 +37,11 @@
 *                     PMCR_EL0 is 0 indicating that the event counters in PMU
 *                     are disabled.
 * 9.3   mus  02/13/25 Add support for domU guest in SDT flow.
+* 9.5   asa  01/23/26 Add support for cache coherency at EL3 for Versal Gen2.
+* 9.6   tni  10/05/26 Move Versal Gen2 EL3 SLCR/AxProt/SMMU/MMI programming out
+*                     of crt0 into the Xil_PlatformInit constructor
+*                     (xplat_init.c, XPPU-safe); crt0 only keeps a symbol
+*                     reference so that object is linked.
 * </pre>
 *
 * @note
@@ -64,7 +69,20 @@
 	.quad	__bss_end__
 
 
-.set APU_PWRCTL,	0xFD5C0090
+.set APU_PWRCTL,				0xFD5C0090
+
+#if defined(VERSAL_2VE_2VM) && (EL3 == 1)
+	/*
+	 * Retain xplat_init.o. Xil_PlatformInit() is a constructor, but as an
+	 * otherwise-unreferenced archive object it would be dropped along with
+	 * its .init_array entry. This data reference (never executed) from crt0
+	 * - which is always linked - pulls the member in so the constructor runs.
+	 */
+	.section .data.xplat_init_keep,"a"
+	.align	3
+	.quad	Xil_PlatformInit
+	.text
+#endif
 
 	.globl	_startup
 _startup:
@@ -126,7 +144,7 @@ _startup:
 	 * configured as device memory, updating attributes
 	 * of GIC region as strongly ordered, RW, non executable
 	 * through Xil_SetTlbAttributes API. Below code snippet
-	 * in assemby is equivalent to,
+	 * in assembly is equivalent to,
 	 * Xil_SetTlbAttributes(XPAR_SCUGIC_0_DIST_BASEADDR,
 	 * 			STRONG_ORDERED | EXECUTE_NEVER)
 	 */

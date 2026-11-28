@@ -16,6 +16,3 @@
 .bin
 .pdi
 .vitisWorkspace.json
-
-_ide/logs
-_ide/.wsdata

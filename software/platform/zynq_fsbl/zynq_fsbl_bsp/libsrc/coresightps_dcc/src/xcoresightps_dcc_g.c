@@ -1,6 +1,6 @@
 #include "xcoresightps_dcc.h"
 
-XCoresightps_dcc_Config XCoresightps_dcc_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XCoresightps_dcc_Config XCoresightps_dcc_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,ps7-coresight-comp-1.00.a", /* compatible */

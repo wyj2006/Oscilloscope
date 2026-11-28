@@ -1,6 +1,6 @@
 #include "xdevcfg.h"
 
-XDcfg_Config XDcfg_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XDcfg_Config XDcfg_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,zynq-devcfg-1.0", /* compatible */

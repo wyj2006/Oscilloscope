@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (c) 2021-2022 Xilinx, Inc.  All rights reserved.
-* Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (c) 2022 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -28,6 +28,11 @@
 *  1.4  ht      09/12/23 Added code for versioning of library.
 *  1.4  mus     15/02/24 Added correct APIs to set/get MB V frequency.
 *  2.0  ml      28/03/24 Added description to fix doxygen warnings.
+*  2.4  vmt     08/20/26 Added weak sleep and tick timer instance
+*                        variables.
+*  2.4  vmt     09/01/26 Added XTimer_SetIntervalHz() to configure the tick
+*                        interval from frequency.
+*  2.5  ml    09/22/26 Fixed doxygen 1.15.0 and compliance checker warnings.
 * </pre>
 ******************************************************************************/
 #ifndef XILTIMER_H
@@ -79,25 +84,10 @@ typedef enum {
 	XTIMER_DELAY_USEC = 1000 * 1000, /**< Time delay in microseconds*/
 } XTimer_DelayType;
 
-typedef void (*XTimer_TickHandler) (void *CallBackRef, u32 StatusEvent);
+typedef void (*XTimer_TickHandler) (void *CallBackRef, u32 StatusEvent); /**< Callback function type for tick timer interrupt handler. */
 
 /**
- * Structure to the XFpga instance.
- *
- * @param XTimer_ModifyInterval Modifies the timer interval
- * @param XTimer_TickIntrHandler Tick interrupt handler
- * @param XTimer_TickInterval Configures the tick interval
- * @param XSleepTimer_Stop Stops the sleep timer
- * @param XTickTimer_Stop Stops the tick timer
- * @param XTickTimer_ClearInterrupt Clears the Tick timer interrupt status
- * @param Handler Tick Handler
- * @param CallBackRef Callback reference for handler
- * @param AxiTimer_SleepInst Sleep Instance for AxiTimer
- * @param AxiTimer_TickInst Tick Instance for AxiTimer
- * @param TtcPs_SleepInst Sleep Instance for TTCPS
- * @param TtcPs_TickInst Tick Instance for TTCPS
- * @param ScuTimer_SleepInst Sleep Instance for Scutimer
- * @param ScuTimer_TickInst Tick Instance for Scutimer
+ * @brief XTimer instance structure holding timer operation callbacks and instances.
  */
 typedef struct XTimerTag {
 	void (*XTimer_ModifyInterval)(struct XTimerTag *InstancePtr, u32 delay,
@@ -106,6 +96,9 @@ typedef struct XTimerTag {
                u8 Priority);                /**< Tick interrupt handler */
 	void (*XTimer_TickInterval)(struct XTimerTag *InstancePtr, u32 Delay);
                                             /**< Configures the tick interval */
+	void (*XTimer_TickIntervalHz)(struct XTimerTag *InstancePtr, u32 FreqHz);
+                                            /**< Configures the tick interval
+                                                 from a frequency in Hz */
 	void (*XSleepTimer_Stop)(struct XTimerTag *InstancePtr);
                                             /**< Stops the sleep timer */
 	void (*XTickTimer_Stop)(struct XTimerTag *InstancePtr);
@@ -144,8 +137,32 @@ typedef struct XTimerTag {
 #endif
 } XTimer;
 
-typedef u64 XTime;
-extern XTimer TimerInst;
+typedef u64 XTime; /**< Type for representing timer count in u64 format. */
+extern XTimer TimerInst; /**< Global XTimer instance for timer operations. */
+
+/*
+ * Weak default timer instance variables used by xiltimer.
+ * Holds timer base addresses (SDT) or device IDs (non-SDT).
+ * Applications may override these values to select a different
+ * timer instance.
+ */
+#ifdef XSLEEPTIMER_BASEADDRESS
+#define XSLEEPTIMER_INSTANCE XSLEEPTIMER_BASEADDRESS
+#elif defined(XSLEEPTIMER_DEVICEID)
+#define XSLEEPTIMER_INSTANCE XSLEEPTIMER_DEVICEID
+#endif
+#ifdef XTICKTIMER_BASEADDRESS
+#define XTICKTIMER_INSTANCE XTICKTIMER_BASEADDRESS
+#elif defined(XTICKTIMER_DEVICEID)
+#define XTICKTIMER_INSTANCE XTICKTIMER_DEVICEID
+#endif
+
+#ifdef XSLEEPTIMER_INSTANCE
+extern UINTPTR XSleepTimer_Instance;
+#endif
+#ifdef XTICKTIMER_INSTANCE
+extern UINTPTR XTickTimer_Instance;
+#endif
 
 /****************** Macros (Inline Functions) Definitions *********************/
 
@@ -164,18 +181,35 @@ u32 XTimer_GetLibVersion(void)
 }
 /************************** Function Prototypes ******************************/
 /**
- * This API is used for initializing sleep timer
+ * @brief Initialize the sleep timer instance.
+ *
+ * @param[out] InstancePtr Pointer to the XTimer instance.
+ *
+ * @return XST_SUCCESS always.
  */
 u32 XilSleepTimer_Init(XTimer *InstancePtr);
 /**
- * This API is used for initializing Tick timer
+ * @brief Initialize the tick timer instance.
+ *
+ * @param[out] InstancePtr Pointer to the XTimer instance.
+ *
+ * @return XST_SUCCESS always.
  */
 u32 XilTickTimer_Init(XTimer *InstancePtr);
 /**
- * Get the time
+ * @brief Get the current timer count value.
+ *
+ * @param[out] Xtime_Global Pointer to store the current timer value.
  */
 void XTime_GetTime(XTime *Xtime_Global);
 void XTimer_SetInterval(unsigned long delay);
+/**
+ * Sets the tick interval from a frequency in Hz.
+ * XTimer_SetInterval() uses whole milliseconds and cannot represent rates
+ * that are not exact divisors of 1000. The requested rate is preserved in Hz
+ * when the selected timer implements the Hz path.
+ */
+void XTimer_SetIntervalHz(u32 FreqHz);
 void XTimer_SetHandler(XTimer_TickHandler FuncPtr, void *CallBackRef,
 		       u8 Priority);
 void XTimer_ClearTickInterrupt( void );

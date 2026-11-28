@@ -1,6 +1,6 @@
 #include "xscuwdt.h"
 
-XScuWdt_Config XScuWdt_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+__attribute__((weak)) XScuWdt_Config XScuWdt_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,ps7-scuwdt-1.00.a", /* compatible */

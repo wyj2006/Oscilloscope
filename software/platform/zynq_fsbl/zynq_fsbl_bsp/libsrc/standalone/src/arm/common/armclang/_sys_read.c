@@ -1,14 +1,27 @@
 /******************************************************************************
 * Copyright (c) 2020 Xilinx, Inc.  All rights reserved.
+* Copyright (C) 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 *
 * SPDX-License-Identifier: MIT
 *
 ******************************************************************************/
+/**
+ * @file _sys_read.c
+ * @brief Semihosting read stub for ARM compilers.
+ */
 #ifndef UNDEFINE_FILE_OPS
 #include "xil_printf.h"
 #include "xparameters.h"
 
 /* Stub for read() sys-call */
+/**
+ * @brief Stub for semihosting read; reads from STDIN if configured.
+ * @param[in] fh File handle (unused).
+ * @param[out] buf Buffer to store read bytes.
+ * @param[in] len Number of bytes requested.
+ * @param[in] mode Transfer mode (unused).
+ * @return Number of bytes NOT read.
+ */
 __attribute__((weak)) s32 _sys_read(__attribute__((unused)) u32 fh,
 					__attribute__((unused)) u8 *buf,
 					u32 len,
@@ -30,9 +43,10 @@ __attribute__((weak)) s32 _sys_read(__attribute__((unused)) u32 fh,
 		}
 	}
 
-	return numbytes;
+	/* Return the number of characters NOT read */
+	return (s32)(len - (u32)numbytes);
 #endif
-	/* Return the number of character read */
-	return 0;
+	/* No STDIN configured: nothing was read */
+	return (s32)len;
 }
 #endif

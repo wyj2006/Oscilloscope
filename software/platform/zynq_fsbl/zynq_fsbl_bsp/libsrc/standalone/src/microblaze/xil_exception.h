@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C) 2009 - 2021 Xilinx, Inc.  All rights reserved.
-* Copyright (C) 2023 Advanced Micro Devices, Inc. All Rights Reserved.
+* Copyright (C) 2023 - 2026 Advanced Micro Devices, Inc. All Rights Reserved.
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
@@ -9,16 +9,15 @@
 *
 * @file xil_exception.h
 *
-* @addtogroup microblaze_exception_apis Microblaze Exception APIs
+* @addtogroup microblaze_exception_apis Microblaze exception APIs
 * @{
 *
 * The xil_exception.h file, available in the <install-directory>/src/microblaze folder,
 * contains Microblaze specific exception related APIs and macros. Application programs
 * can use these APIs for various exception related operations. For example, enable exception,
-* disable exception, register exception hander.
+* disable exception, register exception handler.
 *
 * @note To use exception related functions, xil_exception.h must be added in source code
-*
 *
 * <pre>
 * MODIFICATION HISTORY:
@@ -27,6 +26,8 @@
 * ----- ---- -------- -------------------------------------------------------
 * 1.00  hbm  07/28/09 Initial release
 * 9.0   ml   03/03/23 Add description to fix doxygen warnings.
+* 9.5   ml   04/23/26 Add XIL_EXCEPTION_ALL, mask/save/restore APIs (CR-1262632).
+* 9.6   ml   10/01/26 Fix doxygen 1.15.0 and compliance checker warnings
 * </pre>
 *
 ******************************************************************************/
@@ -34,8 +35,8 @@
 /**
  *@cond nocomments
  */
-#ifndef XIL_EXCEPTION_H /**< prevent circular inclusions */
-#define XIL_EXCEPTION_H /**< by using protection macros */
+#ifndef XIL_EXCEPTION_H
+#define XIL_EXCEPTION_H
 
 #include "xil_types.h"
 
@@ -64,6 +65,15 @@ extern "C" {
 #define XIL_EXCEPTION_ID_LAST		      XIL_EXCEPTION_ID_MMU
 #define XIL_EXCEPTION_MASK		      0x100U
 #define XIL_INTERRUPTS_MASK		      0x2U
+/**
+ * @def XIL_EXCEPTION_ALL
+ * @brief Combined mask of all interrupt and hardware exception enable
+ *        bits in the MicroBlaze MSR (IE | EE).
+ *
+ * Used with Xil_ExceptionEnableMask(), Xil_ExceptionDisableMask(),
+ * Xil_ExceptionSaveDisable(), and Xil_ExceptionRestoreEnable().
+ */
+#define XIL_EXCEPTION_ALL (XIL_INTERRUPTS_MASK | XIL_EXCEPTION_MASK)
 /*
  * XIL_EXCEPTION_ID_INT is defined for all processors, but with different value.
  */
@@ -89,15 +99,30 @@ typedef void (*XInterruptHandler) (void *InstancePtr);
 
 /************************** Function Prototypes ******************************/
 
+/**
+ * @brief Register a handler for a specific exception.
+ * @param[in] Exception_id Exception vector identifier.
+ * @param[in] Handler      Pointer to the exception handler function.
+ * @param[in] Data         Pointer to data passed to the handler.
+ */
 extern void Xil_ExceptionRegisterHandler(u32 Exception_id,
 					 Xil_ExceptionHandler Handler,
 					 void *Data);
 
+/**
+ * @brief Remove the handler for a specific exception.
+ * @param[in] Exception_id Exception vector identifier.
+ */
 extern void Xil_ExceptionRemoveHandler(u32 Exception_id);
 
 extern void Xil_ExceptionInit(void);
 extern void Xil_ExceptionEnable(void);
 extern void Xil_ExceptionDisable(void);
+
+extern void Xil_ExceptionEnableMask(u32 Mask);
+extern void Xil_ExceptionDisableMask(u32 Mask);
+extern u32 Xil_ExceptionSaveDisable(void);
+extern void Xil_ExceptionRestoreEnable(u32 flags);
 
 #ifdef __cplusplus
 }
